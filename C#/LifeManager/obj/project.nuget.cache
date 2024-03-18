@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RqV1WD3j+0en3l3VfwlLn7CzUy4YB7+p58I4hkOHhZ+H1Wu8r+0lRujnrdecUWq44wCmnccUV+UNVm72jdDesA==",
+  "dgSpecHash": "7xrGEdzZwXcFkw8ZKFAtvOM9GC9os27kB0WmNfsKlHpjIe7wUY69E7xtGH4YuWvOA07pAMq7RBRQ3n1GKkbtew==",
   "success": true,
-  "projectFilePath": "C:\\Users\\samyd\\RiderProjects\\LifeManager\\LifeManager\\LifeManager.csproj",
+  "projectFilePath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\samyd\\.nuget\\packages\\avalonia\\11.0.2\\avalonia.11.0.2.nupkg.sha512",
     "C:\\Users\\samyd\\.nuget\\packages\\avalonia.angle.windows.natives\\2.1.0.2023020321\\avalonia.angle.windows.natives.2.1.0.2023020321.nupkg.sha512",

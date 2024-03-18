@@ -4486,11 +4486,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\samyd\\RiderProjects\\LifeManager\\LifeManager\\LifeManager.csproj",
+      "projectUniqueName": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
       "projectName": "LifeManager",
-      "projectPath": "C:\\Users\\samyd\\RiderProjects\\LifeManager\\LifeManager\\LifeManager.csproj",
+      "projectPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
       "packagesPath": "C:\\Users\\samyd\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\samyd\\RiderProjects\\LifeManager\\LifeManager\\obj\\",
+      "outputPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\samyd\\AppData\\Roaming\\NuGet\\NuGet.Config"
