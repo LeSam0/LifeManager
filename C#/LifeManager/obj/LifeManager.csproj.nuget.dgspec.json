@@ -1,6 +1,7 @@
 {
   "format": 1,
   "restore": {
+<<<<<<< HEAD
     "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj": {}
   },
   "projects": {
@@ -12,9 +13,22 @@
         "projectPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
         "packagesPath": "C:\\Users\\samyd\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\obj\\",
+=======
+    "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
+        "projectName": "LifeManager",
+        "projectPath": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
+        "packagesPath": "C:\\Users\\cesar\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\obj\\",
+>>>>>>> febefb547931c78edd8b08767644efa90bb22e35
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\samyd\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\cesar\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -70,12 +84,30 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.26, 6.0.26]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[6.0.26, 6.0.26]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.26, 6.0.26]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.26, 6.0.26]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
         }
       }
     }
