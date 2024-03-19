@@ -4,6 +4,8 @@
     <option name="projectPerEditor">
       <map>
         <entry key="LifeManager/App.axaml" value="LifeManager/LifeManager.csproj" />
+        <entry key="LifeManager/LaG.axaml" value="LifeManager/LifeManager.csproj" />
+        <entry key="LifeManager/MainFenetre.axaml" value="LifeManager/LifeManager.csproj" />
         <entry key="LifeManager/MainWindow.axaml" value="LifeManager/LifeManager.csproj" />
       </map>
     </option>
