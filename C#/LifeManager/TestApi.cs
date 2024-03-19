@@ -20,7 +20,7 @@ public class TestApi
                 }
                 else
                 {
-                    return null;
+                    return "null";
                 }
             }
         }

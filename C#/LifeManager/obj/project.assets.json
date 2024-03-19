@@ -4486,19 +4486,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-<<<<<<< HEAD
-      "projectUniqueName": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
-      "projectName": "LifeManager",
-      "projectPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
-      "packagesPath": "C:\\Users\\samyd\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\obj\\",
-=======
       "projectUniqueName": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
       "projectName": "LifeManager",
       "projectPath": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
       "packagesPath": "C:\\Users\\cesar\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\obj\\",
->>>>>>> febefb547931c78edd8b08767644efa90bb22e35
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\cesar\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -4583,5 +4575,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101\\RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problème de lecture du fichier cache C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }

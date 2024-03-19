@@ -1,19 +1,6 @@
 {
   "format": 1,
   "restore": {
-<<<<<<< HEAD
-    "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj": {}
-  },
-  "projects": {
-    "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
-        "projectName": "LifeManager",
-        "projectPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
-        "packagesPath": "C:\\Users\\samyd\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\samyd\\LifeManager\\C#\\LifeManager\\obj\\",
-=======
     "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj": {}
   },
   "projects": {
@@ -25,7 +12,6 @@
         "projectPath": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\LifeManager.csproj",
         "packagesPath": "C:\\Users\\cesar\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\cesar\\OneDrive\\Documents\\LifeManager\\C#\\LifeManager\\obj\\",
->>>>>>> febefb547931c78edd8b08767644efa90bb22e35
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\cesar\\AppData\\Roaming\\NuGet\\NuGet.Config"
