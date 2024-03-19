@@ -13,10 +13,12 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = LifeManager
-build_property.ProjectDir = C:\Users\samyd\RiderProjects\LifeManager\LifeManager\
+build_property.ProjectDir = C:\Users\Raphael\LifeManager\C#\LifeManager\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
 
-[C:/Users/samyd/RiderProjects/LifeManager/LifeManager/App.axaml]
+[C:/Users/Raphael/LifeManager/C\#/LifeManager/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[C:/Users/samyd/RiderProjects/LifeManager/LifeManager/MainWindow.axaml]
+[C:/Users/Raphael/LifeManager/C\#/LifeManager/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
