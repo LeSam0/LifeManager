@@ -36,26 +36,26 @@ class HomePage extends StatelessWidget {
         title: const Text('LifeManager'),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 1300),
+        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
         child: Center(
           child: Container(
-            width: 300,
-            height: 600,
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.6,
             decoration: BoxDecoration(
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(20),
             ),
-            padding: const EdgeInsets.all(70),
+            padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/page1');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -67,7 +67,7 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page2');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -79,7 +79,7 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page3');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -91,7 +91,7 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page4');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal:   50, vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -103,9 +103,9 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page5');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                   child: const Text('Coffre fort'),
