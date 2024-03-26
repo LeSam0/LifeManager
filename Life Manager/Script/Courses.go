@@ -117,10 +117,11 @@ func GetListeByCategorie() []ListeByCategorie {
 	var liste_by_categorie ListeByCategorie
 	liste_Categorie := GetCategorie()
 	for _, categorie := range liste_Categorie {
-		liste_by_categorie.Categorie = categorie.Categorie_Name
 		liste_by_categorie.Article = GetCourseByCategorie(categorie.Id)
-		liste_course = append(liste_course, liste_by_categorie)
+		if len(liste_by_categorie.Article) != 0 {
+			liste_by_categorie.Categorie = categorie.Categorie_Name
+			liste_course = append(liste_course, liste_by_categorie)
+		}
 	}
 	return liste_course
 }
-

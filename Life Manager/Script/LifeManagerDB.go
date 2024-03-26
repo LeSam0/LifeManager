@@ -53,6 +53,12 @@ func Create() {
 		panic(err)
 	}
 	log.Println("Table course created successfully")
+	// Create table courses_favori
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses_favori (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Table course_favorie created successfully")
 }
 
 func CreateCategorieCourse() {
