@@ -38,14 +38,14 @@ func (Liste Articles) ModifFavToDB(id string) {
 	}
 }
 
-func GetCourseFavByCategorie(categorie_id int) []Articles {
+func GetAllCourseFav() []Articles {
 	var articles []Articles
 	db, err := sql.Open("sqlite3", "./LifeManager.db")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite FROM courses_favori WHERE categorie_id = ?", categorie_id)
+	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite FROM courses_favori")
 	if err != nil {
 		panic(err)
 	}
@@ -64,16 +64,10 @@ func GetCourseFavByCategorie(categorie_id int) []Articles {
 	return articles
 }
 
-func GetListeFavByCategorie() []ListeByCategorie {
-	var liste_course []ListeByCategorie
-	var liste_by_categorie ListeByCategorie
-	liste_Categorie := GetCategorie()
-	for _, categorie := range liste_Categorie {
-		liste_by_categorie.Article = GetCourseFavByCategorie(categorie.Id)
-		if len(liste_by_categorie.Article) != 0 {
-			liste_by_categorie.Categorie = categorie.Categorie_Name
-			liste_course = append(liste_course, liste_by_categorie)
-		}
+func GetListeFavByCategorie() []Articles {
+	liste_course := GetAllCourseFav()
+	for _, element := range liste_course {
+		element.Categorie = GetCategoriebyId(element.Categorie_id)
 	}
 	return liste_course
 }

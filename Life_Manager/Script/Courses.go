@@ -9,12 +9,8 @@ type Categorie struct {
 	Categorie_Name string `json:"Categorie_Name,omitempty"`
 }
 
-type ListeByCategorie struct {
-	Categorie string     `json:"Categorie_Name,omitempty"`
-	Article   []Articles `json:"Article_Liste,omitempty"`
-}
-
 type Articles struct {
+	Categorie    string  `json:"Categorie_Name,omitempty"`
 	Id           int     `json:"Id,omitempty"`
 	Categorie_id int     `json:"Categorie_Id,omitempty"`
 	Article      string  `json:"Article,omitempty"`
@@ -61,14 +57,14 @@ func (Liste Articles) ModifToDB(id string) {
 	}
 }
 
-func GetCourseByCategorie(categorie_id int) []Articles {
+func GetAllCourse() []Articles {
 	var articles []Articles
 	db, err := sql.Open("sqlite3", "./LifeManager.db")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite FROM courses WHERE categorie_id = ?", categorie_id)
+	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite FROM courses")
 	if err != nil {
 		panic(err)
 	}
@@ -113,16 +109,34 @@ func GetCategorie() []Categorie {
 	return categories
 }
 
-func GetListeByCategorie() []ListeByCategorie {
-	var liste_course []ListeByCategorie
-	var liste_by_categorie ListeByCategorie
-	liste_Categorie := GetCategorie()
-	for _, categorie := range liste_Categorie {
-		liste_by_categorie.Article = GetCourseByCategorie(categorie.Id)
-		if len(liste_by_categorie.Article) != 0 {
-			liste_by_categorie.Categorie = categorie.Categorie_Name
-			liste_course = append(liste_course, liste_by_categorie)
+func GetCategoriebyId(id int) string {
+	name := ""
+	db, err := sql.Open("sqlite3", "./LifeManager.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	rows, err := db.Query("SELECT type FROM categorie_course WHERE id = ?", id)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&name)
+		if err != nil {
+			panic(err)
 		}
+	}
+	if err = rows.Err(); err != nil {
+		panic(err)
+	}
+	return name
+}
+
+func GetListeByCategorie() []Articles {
+	liste_course := GetAllCourse()
+	for _, element := range liste_course {
+		element.Categorie = GetCategoriebyId(element.Categorie_id)
 	}
 	return liste_course
 }
