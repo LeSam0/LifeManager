@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 void main() {
   runApp(const LifeManager());
 }
 
 class LifeManager extends StatelessWidget {
   const LifeManager({Key? key}) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +38,8 @@ class HomePage extends StatelessWidget {
         title: const Text('LifeManager'),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+        padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.1),
         child: Center(
           child: Container(
             width: MediaQuery.of(context).size.width * 0.8,
@@ -59,7 +58,8 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page1');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
+                    padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -71,7 +71,8 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page2');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
+                    padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -83,7 +84,8 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page3');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
+                    padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -95,7 +97,8 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page4');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
+                    padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -107,7 +110,8 @@ class HomePage extends StatelessWidget {
                     Navigator.pushNamed(context, '/page5');
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.02),
+                    padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.height * 0.02),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -155,7 +159,6 @@ class Page2 extends StatelessWidget {
   }
 }
 
-
 class Page3 extends StatefulWidget {
   const Page3({Key? key}) : super(key: key);
 
@@ -175,18 +178,19 @@ class _Page3State extends State<Page3> {
     super.initState();
     fetchCategories(); // Appel de la fonction pour récupérer les catégories
   }
+
   Future<void> addItem(String name, double price, String categoryId) async {
-    final url = 'http://localhost:8000/courses/create'; // URL de l'API pour ajouter un élément
-    final response = await http.post(
-      Uri.parse(url),
-      body: {
+     // URL de l'API pour ajouter un élément
+      final url = Uri.parse('http://localhost:8000/courses/create').replace(
+      queryParameters: {
         'categorie_id': categoryId,
         'article': name,
         'prix': price.toString(),
-        'quantite': "10",
+        'quantite': '10', // Notez que j'ai mis '10' entre guillemets pour le garder comme une chaîne
       },
     );
 
+final response = await http.post(url);
     if (response.statusCode == 200) {
       // Si la requête réussit
       // Vous pouvez ajouter une logique supplémentaire ici si nécessaire
@@ -198,7 +202,8 @@ class _Page3State extends State<Page3> {
 
   // Fonction pour récupérer les catégories depuis l'API
   Future<void> fetchCategories() async {
-    final response = await http.get(Uri.parse('http://localhost:8000/courses/categorie'));
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/courses/categorie'));
 
     if (response.statusCode == 200) {
       // Si la requête réussit
@@ -334,7 +339,7 @@ class _Page3State extends State<Page3> {
                       TextButton(
                         onPressed: () {
                           if (selectedCategoryId != null) {
-                             addItem(newName, newPrice, selectedCategoryId!);
+                            addItem(newName, newPrice, selectedCategoryId!);
                           } else {
                             showDialog(
                               context: context,
@@ -370,7 +375,6 @@ class _Page3State extends State<Page3> {
     );
   }
 }
-
 
 class CourseItem {
   final String name;

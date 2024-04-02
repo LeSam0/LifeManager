@@ -6,9 +6,10 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"fmt"
 )
 
-func Tesr() {
+func API() {
 
 	// Login
 
@@ -98,6 +99,8 @@ func CreateCourse(w http.ResponseWriter, r *http.Request) {
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
 		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		fmt.Println(newArticle)
+		fmt.Println(r.URL.Query())
 		newArticle.AddToDB()
 	}
 }
