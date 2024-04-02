@@ -11,7 +11,7 @@ import (
 
 func API() {
 
-	// Depense 
+	// Depense
 
 	http.HandleFunc("/depense/create", CreateDepense)
 	http.HandleFunc("/depense/get/all", GetAllDepense)
@@ -19,7 +19,7 @@ func API() {
 	http.HandleFunc("/depense/get/mois", GetDepensebyMonth)
 	http.HandleFunc("/depense/get/annee", GetDepensebyYear)
 	http.HandleFunc("/depense/update", UpdateDepense)
-	http.HandleFunc("/depense/delete", DeleteDepense)	
+	http.HandleFunc("/depense/delete", DeleteDepense)
 
 	// Categorie / Sous-Categorie Depense
 
@@ -58,7 +58,7 @@ func API() {
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
-func DeleteDepense(w http.ResponseWriter, r *http.Request){
+func DeleteDepense(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
 		id := r.URL.Query().Get("id")
 		LifeManager.SuppToDB(id)
@@ -70,7 +70,7 @@ func UpdateDepense(w http.ResponseWriter, r *http.Request) {
 		Id := r.URL.Query().Get("id")
 		Nom := r.URL.Query().Get("nomdepense")
 		Montant, _ := strconv.ParseFloat(r.URL.Query().Get("montant"), 64)
-		Date, _ := time.Parse("2006-01-02 15:04:05",r.URL.Query().Get(""))
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get(""))
 		Description := r.URL.Query().Get("description")
 		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("description"))
 		newLogin := LifeManager.NewDepenses(Nom, Montant, Date, Description, Id_Sous_Categorie)
@@ -114,7 +114,7 @@ func CreateDepense(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		Nom := r.URL.Query().Get("nomdepense")
 		Montant, _ := strconv.ParseFloat(r.URL.Query().Get("montant"), 64)
-		Date, _ := time.Parse("2006-01-02 15:04:05",r.URL.Query().Get(""))
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get(""))
 		Description := r.URL.Query().Get("description")
 		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("description"))
 		newLogin := LifeManager.NewDepenses(Nom, Montant, Date, Description, Id_Sous_Categorie)
@@ -182,7 +182,7 @@ func GetMotdePasse(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func  CreateCourse(w http.ResponseWriter, r *http.Request) {
+func CreateCourse(w http.ResponseWriter, r *http.Request) {
 
 	// test
 	// http://localhost:8000/courses/create?categorie_id=1&article=eau&prix=1.50&quantite=20
