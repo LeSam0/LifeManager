@@ -176,15 +176,9 @@ class _Page3State extends State<Page3> {
     fetchCategories(); // Appel de la fonction pour récupérer les catégories
   }
   Future<void> addItem(String name, double price, String categoryId) async {
-    final url = 'http://localhost:8000/courses/create'; // URL de l'API pour ajouter un élément
+    final url = 'http://localhost:8000/courses/create?categorie_id='+categoryId+'&article='+name+'&prix='+price.toString()+'&quantite='+10.toString(); // URL de l'API pour ajouter un élément
     final response = await http.post(
       Uri.parse(url),
-      body: {
-        'categorie_id': categoryId,
-        'article': name,
-        'prix': price.toString(),
-        'quantite': "10",
-      },
     );
 
     if (response.statusCode == 200) {

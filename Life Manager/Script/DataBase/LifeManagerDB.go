@@ -17,6 +17,12 @@ func Create() {
 	}
 	Database = db
 	defer db.Close()
+	// Create table User
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, pubkeyrsa TEXT, privkeyrsa TEXT)")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Table User created successfully")
 	// Create table Login
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS login (id INTEGER PRIMARY KEY AUTOINCREMENT, NomApp TEXT, Identifiant TEXT, password TEXT)")
 	if err != nil {

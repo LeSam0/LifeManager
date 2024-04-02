@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"database/sql"
 	"encoding/pem"
 	"errors"
 )
@@ -74,4 +75,29 @@ func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 		break // fall through
 	}
 	return nil, errors.New("Key type is not RSA")
+}
+
+func GetRSA() RSA {
+	var rsa RSA
+	db, err := sql.Open("sqlite3", "./LifeManager.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	err = db.QueryRow("SELECT pubkeyrsa, privkeyrsa FROM user").Scan(&rsa.Pubkey, &rsa.Prikey)
+	if err != nil {
+		panic(err)
+	}
+	return rsa
+}
+
+func ModifRSAToDB(Prikey string, Pubkey string) {
+	db, err := sql.Open("sqlite3", "./LifeManager.db")
+	if err != nil {
+		panic(err)
+	}
+	_, err = db.Exec("UPDATE user SET pubkeyrsa = ?, privkeyrsa = ? where id = ?", Pubkey ,Prikey, "1")
+	if err != nil {
+		panic(err)
+	}
 }

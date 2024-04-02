@@ -11,8 +11,7 @@ type Login struct {
 }
 
 func NewLogin(NomApp string, Identifiant string, MotDePasse string) Login {
-	login := Login{NomApp: NomApp, Identifiant: Identifiant, MotDePasse: MotDePasse}
-	return login
+	return Login{NomApp: NomApp, Identifiant: Identifiant, MotDePasse: MotDePasse}
 }
 
 func (Login Login) AddLoginToDB() {
@@ -20,7 +19,9 @@ func (Login Login) AddLoginToDB() {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("INSERT INTO login (NomApp, identifiant, password) VALUES (?, ?, ?)", Login.NomApp, Login.Identifiant, Login.MotDePasse)
+	rsa := GetRSA()
+	rsapub, _ := ParseRsaPublicKeyFromPemStr(rsa.Pubkey)
+	_, err = db.Exec("INSERT INTO login (NomApp, identifiant, password) VALUES (?, ?, ?)", Login.NomApp, Login.Identifiant, ChiffrementMDP(Login.MotDePasse, rsapub))
 	if err != nil {
 		panic(err)
 	}
@@ -75,3 +76,28 @@ func GetLogin() []Login {
 	return log
 }
 
+func GetLoginWithID() []LoginForRSA {
+	var log []LoginForRSA
+	db, err := sql.Open("sqlite3", "./LifeManager.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	rows, err := db.Query("SELECT * FROM login")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var login LoginForRSA
+		err = rows.Scan(&login.id, &login.nomapp, &login.identifiant, &login.mdp)
+		if err != nil {
+			panic(err)
+		}
+		log = append(log, login)
+	}
+	if err = rows.Err(); err != nil {
+		panic(err)
+	}
+	return log
+}

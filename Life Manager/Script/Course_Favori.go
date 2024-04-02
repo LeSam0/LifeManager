@@ -45,14 +45,14 @@ func GetCourseFavByCategorie(categorie_id int) []Articles {
 		panic(err)
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT categorie_id, article, prix, quantite FROM courses_favori WHERE categorie_id = ?", categorie_id)
+	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite FROM courses_favori WHERE categorie_id = ?", categorie_id)
 	if err != nil {
 		panic(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var article Articles
-		err = rows.Scan(&article.Categorie_id, &article.Article, &article.Prix, &article.Quantite)
+		err = rows.Scan(&article.Id, &article.Categorie_id, &article.Article, &article.Prix, &article.Quantite)
 		if err != nil {
 			panic(err)
 		}

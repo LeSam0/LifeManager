@@ -1,8 +1,9 @@
 package main
 
-import LifeManager "LifeManager/Script"
+// LifeManagerDB "LifeManager/Script/DataBase"
 
 func main() {
-	mdp := LifeManager.Newmdp()
-	print(mdp.MotDePasse)
+	// LifeManagerDB.Create()
+	// LifeManagerDB.CreateCategorieDepense()
+	// LifeManagerDB.CreateSousCategorieDepense()
 }
