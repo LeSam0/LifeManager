@@ -196,7 +196,7 @@ class _Page3State extends State<Page3> {
                 builder: (BuildContext context, StateSetter setState) {
                   return AlertDialog(
                     title: Text('Ajouter un élément à la liste de courses'),
-                    content: Column(
+                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         DropdownButton<String>(
@@ -204,7 +204,7 @@ class _Page3State extends State<Page3> {
                               ? Text('Sélectionner une catégorie')
                               : null,
                           value: selectedCategoryIdToAdd,
-                          onChanged: (String? value) {
+                         onChanged: (String? value) {
                             setState(() {
                               selectedCategoryIdToAdd = value;
                             });
