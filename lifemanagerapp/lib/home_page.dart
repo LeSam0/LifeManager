@@ -130,7 +130,7 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       icon: Icon(Icons.key), // Icône à afficher
-                      label: const Text('Coffre fort'), // Texte du bouton
+                      label: const Text('Mot de passe'), // Texte du bouton
                     ),
                   ],
                 ),

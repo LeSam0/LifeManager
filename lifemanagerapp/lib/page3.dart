@@ -12,6 +12,7 @@ class Page3 extends StatefulWidget {
 
 class _Page3State extends State<Page3> {
   List<CourseItem> courseItems = [];
+  List<CourseItem> favoriteItems = [];
   List<Map<String, dynamic>> categories = [];
   String? selectedCategoryId;
   String? selectedCategoryIdToAdd;
@@ -22,10 +23,31 @@ class _Page3State extends State<Page3> {
     super.initState();
     fetchCategories();
     fetchArticles();
+    fetchFavoriteArticles();
   }
 
-  Future<void> addItem(
-      String name, double price, String categoryId, int quantity) async {
+  Future<void> fetchCategories() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/courses/categorie'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        categories = data
+            .map<Map<String, dynamic>>((category) => {
+                  'id': category['Id'].toString(),
+                  'name': category['Categorie_Name'].toString(),
+                })
+            .toList();
+        categories.add({'id': 'quantite', 'name': 'Quantité'});
+      });
+    } else {
+      throw Exception('Failed to load categories');
+    }
+  }
+
+  Future<void> addItem(String name, double price, String categoryId,
+      int quantity, bool isFavorite) async {
     final url = Uri.parse('http://localhost:8000/courses/create').replace(
       queryParameters: {
         'categorie_id': categoryId,
@@ -43,30 +65,10 @@ class _Page3State extends State<Page3> {
     }
   }
 
-  Future<void> fetchCategories() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:8000/courses/categorie'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        categories = data
-            .map<Map<String, dynamic>>((category) => {
-                  'id': category['Id'].toString(),
-                  'name': category['Categorie_Name'].toString(),
-                })
-            .toList();
-        // Ajout de la catégorie "quantité"
-        categories.add({'id': 'quantite', 'name': 'Quantité'});
-      });
-    } else {
-      throw Exception('Failed to load categories');
-    }
-  }
-
   Future<void> fetchArticles() async {
     final response =
         await http.get(Uri.parse('http://localhost:8000/courses/get'));
+
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
@@ -74,10 +76,11 @@ class _Page3State extends State<Page3> {
             .map<CourseItem>((item) => CourseItem(
                 id: item['Id'].toString(),
                 name: item['Article'].toString(),
-                price: item['Prix'].toString(),
+                price: double.parse(item['Prix'].toString()),
                 category: item['Categorie_Nom'].toString(),
                 categorie_id: item['Categorie_Id'].toString(),
-                quantite: item['Quantite'].toString()))
+                quantite: int.parse(item['Quantite'].toString()),
+                isFavorite: false))
             .toList();
       });
     } else {
@@ -85,18 +88,73 @@ class _Page3State extends State<Page3> {
     }
   }
 
+  Future<void> fetchFavoriteArticles() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/courses/favori/get'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        favoriteItems = data
+            .map<CourseItem>((item) => CourseItem(
+                id: item['Id'].toString(),
+                name: item['Article'].toString(),
+                price: double.parse(item['Prix'].toString()),
+                category: item['Categorie_Nom'].toString(),
+                categorie_id: item['Categorie_Id'].toString(),
+                quantite: int.parse(item['Quantite'].toString()),
+                isFavorite: true))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load favorite articles');
+    }
+  }
+
   Future<void> SuppItem(String id) async {
-    final url = Uri.parse('http://localhost:8000/courses/delete').replace(
+    final urlNormal = Uri.parse('http://localhost:8000/courses/delete').replace(
       queryParameters: {
         'id': id,
       },
     );
 
-    final response = await http.delete(url);
-    if (response.statusCode == 200) {
+    final responseNormal = await http.delete(urlNormal);
+
+    if (responseNormal.statusCode == 200) {
       fetchArticles();
     } else {
-      throw Exception('Failed to supp item');
+      throw Exception('Failed to delete item');
+    }
+  }
+
+  Future<void> addFavoriteItem(
+      String categoryId, String name, double price, int quantity) async {
+    final url =
+        Uri.parse('http://localhost:8000/courses/favori/create').replace(
+      queryParameters: {
+        'categorie_id': categoryId,
+        'article': name,
+        'prix': price.toString(),
+        'quantite': quantity.toString(),
+      },
+    );
+
+    final response = await http.post(url);
+    if (response.statusCode == 200) {
+      fetchFavoriteArticles();
+    } else {
+      throw Exception('Failed to add favorite item');
+    }
+  }
+
+  Future<void> removeFavoriteItem(String id) async {
+    final url = Uri.parse('http://localhost:8000/courses/favori/delete?id=$id');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      fetchFavoriteArticles();
+    } else {
+      throw Exception('Failed to remove item from favorites');
     }
   }
 
@@ -112,74 +170,145 @@ class _Page3State extends State<Page3> {
       appBar: AppBar(
         title: const Text('Courses'),
       ),
-      body: Column(
+      body: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DropdownButton<String>(
-              value: selectedCategoryId,
-              onChanged: (String? value) {
-                setState(() {
-                  selectedCategoryId = value;
-                });
-              },
-              items: categories.map<DropdownMenuItem<String>>((category) {
-                return DropdownMenuItem<String>(
-                  value: category['id'],
-                  child: Text(category['name']),
-                );
-              }).toList(),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * 0.1,
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DropdownButton<String>(
+                      value: selectedCategoryId,
+                      onChanged: (String? value) {
+                        setState(() {
+                          selectedCategoryId = value;
+                        });
+                      },
+                      items:
+                          categories.map<DropdownMenuItem<String>>((category) {
+                        return DropdownMenuItem<String>(
+                          value: category['id'],
+                          child: Text(category['name']),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.all(20),
+                        child: ListView.builder(
+                          itemCount: filteredItems.length,
+                          itemBuilder: (context, index) {
+                            return Dismissible(
+                              key: UniqueKey(),
+                              onDismissed: (direction) {
+                                setState(() {
+                                  SuppItem(filteredItems[index].id);
+                                });
+                              },
+                              child: ListTile(
+                                title: Text(filteredItems[index].category),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Nom: ${filteredItems[index].name}'),
+                                    Text(
+                                        'Prix: ${filteredItems[index].price.toString()} €'),
+                                    Text(
+                                        'Quantite: ${filteredItems[index].quantite.toString()}'),
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.close),
+                                      onPressed: () {
+                                        setState(() {
+                                          SuppItem(filteredItems[index].id);
+                                        });
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.star_border),
+                                      onPressed: () {
+                                        setState(() {
+                                          addFavoriteItem(
+                                              filteredItems[index].categorie_id,
+                                              filteredItems[index].name,
+                                              filteredItems[index].price,
+                                              filteredItems[index].quantite);
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.1,
+                vertical: MediaQuery.of(context).size.height * 0.1,
               ),
-              child: Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: ListView.builder(
-                    itemCount: filteredItems.length,
-                    itemBuilder: (context, index) {
-                      return Dismissible(
-                        key: UniqueKey(),
-                        onDismissed: (direction) {
-                          setState(() {
-                            SuppItem(filteredItems[index].id);
-                          });
+              child: Column(
+                children: [
+                  Text('Favoris'),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: ListView.builder(
+                        itemCount: favoriteItems.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title: Text(favoriteItems[index].category),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Nom: ${favoriteItems[index].name}'),
+                                Text(
+                                    'Prix: ${favoriteItems[index].price.toString()} €'),
+                                Text(
+                                    'Quantite: ${favoriteItems[index].quantite}'),
+                              ],
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                setState(() {
+                                  removeFavoriteItem(favoriteItems[index].id);
+                                });
+                              },
+                            ),
+                          );
                         },
-                        child: ListTile(
-                          title: Text(filteredItems[index].category),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Nom: ${filteredItems[index].name}'),
-                              Text(
-                                  'Prix: ${filteredItems[index].price.toString()} €'),
-                              Text(
-                                  'Quantite: ${filteredItems[index].quantite}'),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                SuppItem(filteredItems[index].id);
-                              });
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           ),
@@ -218,10 +347,8 @@ class _Page3State extends State<Page3> {
                             },
                           ).toList(),
                         ),
-                        // Champ de saisie pour la quantité
                         TextField(
-                          decoration: InputDecoration(
-                              labelText: 'Quantité'),
+                          decoration: InputDecoration(labelText: 'Quantité'),
                           onChanged: (value) {
                             selectedQuantity = int.tryParse(value);
                           },
@@ -257,8 +384,12 @@ class _Page3State extends State<Page3> {
                         onPressed: () {
                           if (selectedCategoryIdToAdd != null) {
                             if (selectedQuantity != null) {
-                              addItem(newName, newPrice,
-                                  selectedCategoryIdToAdd!, selectedQuantity!);
+                              addItem(
+                                  newName,
+                                  newPrice,
+                                  selectedCategoryIdToAdd!,
+                                  selectedQuantity!,
+                                  false);
                               Navigator.pop(context);
                             } else {
                               showDialog(
