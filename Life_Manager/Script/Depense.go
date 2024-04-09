@@ -31,7 +31,7 @@ func (Liste Depenses) AddToDB() {
 	}
 }
 
-func (Liste Depenses) SuppToDB(id string) {
+func SuppDepensesToDB(id string) {
 	db, err := sql.Open("sqlite3", "./LifeManager.db")
 	if err != nil {
 		panic(err)

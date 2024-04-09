@@ -11,6 +11,16 @@ import (
 
 func API() {
 
+	// Depense future
+
+	http.HandleFunc("/depense/futur/create", CreateDepense)
+	http.HandleFunc("/depense/futur/get/all", GetAllDepense)
+	http.HandleFunc("/depense/futur/get/jour", GetDepensebyDay)
+	http.HandleFunc("/depense/futur/get/mois", GetDepensebyMonth)
+	http.HandleFunc("/depense/futur/get/annee", GetDepensebyYear)
+	http.HandleFunc("/depense/futur/update", UpdateDepense)
+	http.HandleFunc("/depense/futur/delete", DeleteDepense)
+
 	// Depense
 
 	http.HandleFunc("/depense/create", CreateDepense)
@@ -48,20 +58,77 @@ func API() {
 	http.HandleFunc("/courses/update", UpdateCourse)
 	http.HandleFunc("/courses/delete", DeleteCourse)
 
-	// Course Fav
-
-	http.HandleFunc("/courses/favori/create", CreateCourseFav)
-	http.HandleFunc("/courses/favori/get", GetAllCourseFav)
-	http.HandleFunc("/courses/favori/update", UpdateCourseFav)
-	http.HandleFunc("/courses/favori/delete", DeleteCourseFav)
-
 	log.Fatal(http.ListenAndServe(":8000", nil))
+}
+
+func DeleteFuturDepense(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "DELETE" {
+		id := r.URL.Query().Get("id")
+		LifeManager.SuppFuturDepensesToDB(id)
+	}
+}
+
+func UpdateFuturDepense(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "PUT" {
+		Id := r.URL.Query().Get("id")
+		Nom := r.URL.Query().Get("nomdepense")
+		Montant, _ := strconv.ParseFloat(r.URL.Query().Get("montant"), 64)
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get(""))
+		Description := r.URL.Query().Get("description")
+		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("description"))
+		newLogin := LifeManager.NewDepenses(Nom, Montant, Date, Description, Id_Sous_Categorie)
+		newLogin.ModifFuturToDB(Id)
+	}
+}
+
+func GetFuturDepensebyMonth(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		Mois := r.URL.Query().Get("mois")
+		AllDepense := LifeManager.GetFuturDepenseMois(Mois)
+		json.NewEncoder(w).Encode(AllDepense)
+	}
+}
+
+func GetFuturDepensebyYear(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		Annee := r.URL.Query().Get("annee")
+		AllDepense := LifeManager.GetFuturDepenseJour(Annee)
+		json.NewEncoder(w).Encode(AllDepense)
+	}
+}
+
+func GetFuturDepensebyDay(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		Jour := r.URL.Query().Get("jour")
+		AllDepense := LifeManager.GetFuturDepenseJour(Jour)
+		json.NewEncoder(w).Encode(AllDepense)
+	}
+}
+
+func GetFuturAllDepense(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		AllDepense := LifeManager.GetFuturAllDepense()
+		json.NewEncoder(w).Encode(AllDepense)
+	}
+}
+
+func CreateFuturDepense(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		Nom := r.URL.Query().Get("nomdepense")
+		Montant, _ := strconv.ParseFloat(r.URL.Query().Get("montant"), 64)
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get(""))
+		Description := r.URL.Query().Get("description")
+		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("description"))
+		newDepenses := LifeManager.NewDepenses(Nom, Montant, Date, Description, Id_Sous_Categorie)
+		newDepenses.AddFuturToDB()
+	}
 }
 
 func DeleteDepense(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
 		id := r.URL.Query().Get("id")
-		LifeManager.SuppToDB(id)
+		LifeManager.SuppDepensesToDB(id)
 	}
 }
 
@@ -192,7 +259,7 @@ func CreateCourse(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, false)
 		newArticle.AddToDB()
 	}
 }
@@ -208,7 +275,12 @@ func UpdateCourse(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		save := r.URL.Query().Get("favorie")
+		favorie := false
+		if save == "true" {
+			favorie = true
+		}
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, favorie)
 		newArticle.ModifToDB(id)
 	}
 }
@@ -231,69 +303,6 @@ func GetAllCourse(w http.ResponseWriter, r *http.Request) {
 	// Methode := Get
 	if r.Method == "GET" {
 		Liste_course := LifeManager.GetListeByCategorie()
-		json.NewEncoder(w).Encode(Liste_course)
-	}
-}
-
-func CreateCourseFav(w http.ResponseWriter, r *http.Request) {
-
-	// test
-	// http://localhost:8000/courses/create?categorie_id=1&article=eau&prix=1.50&quantite=20
-	// Methode := Post
-
-	Liste := LifeManager.GetListeFavByCategorie()
-	Nb_article_fav := 0
-	for _, Categorie := range Liste {
-		for range Categorie.Article {
-			Nb_article_fav++
-		}
-	}
-	if Nb_article_fav < 5 {
-		if r.Method == "POST" {
-			categorie_id, _ := strconv.Atoi(r.URL.Query().Get("categorie_id"))
-			article := r.URL.Query().Get("article")
-			prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
-			quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-			newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
-			newArticle.AddFavToDB()
-		}
-	}
-}
-
-func UpdateCourseFav(w http.ResponseWriter, r *http.Request) {
-
-	// test
-	// http://localhost:8000/courses/update?id=1&categorie_id=1&article=eau&prix=1.50&quantite=20
-	// Methode := Put
-	if r.Method == "PUT" {
-		id := r.URL.Query().Get("id")
-		categorie_id, _ := strconv.Atoi(r.URL.Query().Get("categorie_id"))
-		article := r.URL.Query().Get("article")
-		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
-		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
-		newArticle.ModifFavToDB(id)
-	}
-}
-
-func DeleteCourseFav(w http.ResponseWriter, r *http.Request) {
-
-	// test
-	// http://localhost:8000/courses/delete?id=1
-	// Methode := Delete
-	if r.Method == "DELETE" {
-		id := r.URL.Query().Get("id")
-		LifeManager.SuppFavToDB(id)
-	}
-}
-
-func GetAllCourseFav(w http.ResponseWriter, r *http.Request) {
-
-	// test
-	// http://localhost:8000/courses/get
-	// Methode := Get
-	if r.Method == "GET" {
-		Liste_course := LifeManager.GetListeFavByCategorie()
 		json.NewEncoder(w).Encode(Liste_course)
 	}
 }

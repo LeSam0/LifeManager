@@ -54,17 +54,23 @@ func Create() {
 	}
 	log.Println("Table categorie_course created successfully")
 	// Create table courses
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, favorie BOOLEAN, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
 	if err != nil {
 		panic(err)
 	}
 	log.Println("Table course created successfully")
-	// Create table courses_favori
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses_favori (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
+	// Create table depenses futur
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS depenses_futur (id INTEGER PRIMARY KEY AUTOINCREMENT, Nom TEXT, Montant FLOAT, Date DATETIME, Description TEXT, id_sous_categorie INTEGER , FOREIGN KEY (id_sous_categorie) REFERENCES sous_categorie_depense(id))")
 	if err != nil {
 		panic(err)
 	}
-	log.Println("Table course_favorie created successfully")
+	log.Println("Table depenses_futur created successfully")
+	// Create table secure_chest
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS secure_chest (id INTEGER PRIMARY KEY AUTOINCREMENT, Filename TEX)")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Table secure_chest created successfully")
 }
 
 func CreateCategorieCourse() {

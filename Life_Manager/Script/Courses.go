@@ -16,10 +16,11 @@ type Articles struct {
 	Article      string  `json:"Article,omitempty"`
 	Prix         float64 `json:"Prix,omitempty"`
 	Quantite     int     `json:"Quantite,omitempty"`
+	Favorie		 bool	 `json:"Favorie,omitempty"`
 }
 
-func NewArticle(Categorie_id int, Article string, Prix float64, Quantite int) Articles {
-	liste := Articles{Categorie_id: Categorie_id, Article: Article, Prix: Prix, Quantite: Quantite}
+func NewArticle(Categorie_id int, Article string, Prix float64, Quantite int, Favorie bool) Articles {
+	liste := Articles{Categorie_id: Categorie_id, Article: Article, Prix: Prix, Quantite: Quantite, Favorie: Favorie}
 	return liste
 }
 
@@ -28,7 +29,7 @@ func (Liste Articles) AddToDB() {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite) VALUES (?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite)
+	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite, favorie) VALUES (?, ?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Favorie)
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +52,7 @@ func (Liste Articles) ModifToDB(id string) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ? where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, id)
+	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ?, favorie = ?, where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Favorie,id)
 	if err != nil {
 		panic(err)
 	}
