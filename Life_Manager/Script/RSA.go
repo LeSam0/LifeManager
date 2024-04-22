@@ -96,7 +96,7 @@ func ModifRSAToDB(Prikey string, Pubkey string) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("UPDATE user SET pubkeyrsa = ?, privkeyrsa = ? where id = ?", Pubkey ,Prikey, "1")
+	_, err = db.Exec("UPDATE user SET pubkeyrsa = ?, privkeyrsa = ? where id = ?", Pubkey, Prikey, "1")
 	if err != nil {
 		panic(err)
 	}

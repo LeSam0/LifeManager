@@ -1,11 +1,9 @@
 package main
 
 import (
-	LifeManager "LifeManager/API"
-	"fmt"
+	LifeManager "LifeManager/Script/Safe_Chest"
 )
 
 func main() {
-	fmt.Println("Life Manager API")
-	LifeManager.API()
+	LifeManager.DeSecureFile()
 }

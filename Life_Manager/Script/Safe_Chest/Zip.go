@@ -24,17 +24,18 @@ func SecureFile() {
 		}
 		RSA := LifeManager.GetRSA()
 		pubkey, _ := LifeManager.ParseRsaPublicKeyFromPemStr(RSA.Pubkey)
-		datacrypt := Chiffrement(dataoffile, pubkey)
-		datacryptsplit := SpliArrayinThree(datacrypt)
+		datasplit := SpliArrayinThree(dataoffile)
 		hasher := md5.New()
 		hasher.Write([]byte(file))
 		filenamecrypt := hex.EncodeToString(hasher.Sum(nil))
 		AddFileNameToDB(file)
 		index := 0
-		for i := range datacryptsplit {
-			WriteInFile(datacryptsplit[i], filenamecrypt[index*len(filenamecrypt)/3:(index+1)*len(filenamecrypt)/3])
+		for _, data := range datasplit {
+			datacrypt := Chiffrement(data, pubkey)
+			WriteInFile(datacrypt, filenamecrypt[index*len(filenamecrypt)/3:(index+1)*len(filenamecrypt)/3])
 			index++
-		}
+		}	
+		RemouveFile(file)
 	}
 }
 
@@ -89,17 +90,12 @@ func AddFileNameToDB(filename string) {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
+func RemouveFile(filename string) {
+	e := os.Remove("./Safe_Chest/"+filename) 
+    if e != nil { 
+        panic(e) 
+    } 
+}
 
 
 

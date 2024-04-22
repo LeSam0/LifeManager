@@ -66,11 +66,17 @@ func Create() {
 	}
 	log.Println("Table depenses_futur created successfully")
 	// Create table secure_chest
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS secure_chest (id INTEGER PRIMARY KEY AUTOINCREMENT, Filename TEX)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS secure_chest (id INTEGER PRIMARY KEY AUTOINCREMENT, Filename TEXT)")
 	if err != nil {
 		panic(err)
 	}
 	log.Println("Table secure_chest created successfully")
+	// Create table calendar
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, event_name TEXT, event_date DATETIME)")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Table calendar created successfully")
 }
 
 func CreateCategorieCourse() {
