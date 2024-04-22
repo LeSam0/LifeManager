@@ -20,7 +20,6 @@ func Newmdp() MDP {
 	return MDP{MotDePasse: string(out)}
 }
 
-
 func ChiffrementMDP(mdp string, PubKey *rsa.PublicKey) string {
 	Mdpchiffre, _ := rsa.EncryptOAEP(sha256.New(), rand.Reader, PubKey, []byte(mdp), []byte{})
 	return string(Mdpchiffre)

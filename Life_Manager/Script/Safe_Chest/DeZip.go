@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"fmt"
 	"strings"
 )
 
@@ -25,17 +26,19 @@ func DeSecureFile() {
 	files := GetAllFileName()
 	filesdb := GetAllFileNameFormDB()
 	FilesDos := GetFileTodeSecure(files, filesdb)
+	RSA := LifeManager.GetRSA()
+	privkey, _ := LifeManager.ParseRsaPrivateKeyFromPemStr(RSA.Prikey)
 	for _, file := range FilesDos {
 		result := GetOrderOfFile(file)
-		contenuchiffrer := []byte{}
+		contenu := []byte{}
 		for _, f := range result.filename {
 			save, _ := ReadFileAndReturnByteArray(f)
-			contenuchiffrer = append(contenuchiffrer, save...)
-		}
-		RSA := LifeManager.GetRSA()
-		privkey, _ := LifeManager.ParseRsaPrivateKeyFromPemStr(RSA.Prikey)
-		contenu := DeChiffrement(contenuchiffrer, privkey)
-		WriteInFile(contenu , result.truefilename)
+			save = DeChiffrement(save, privkey)
+			contenu = append(contenu, save...)
+			RemouveFile(f)
+		} 
+		WriteInFile(contenu, result.truefilename)
+		
 	}
 }
 
@@ -120,6 +123,9 @@ func StringToMd5(filename string) string {
 }
 
 func DeChiffrement(Filedata []byte, PrivKey *rsa.PrivateKey) []byte {
-	Mdpdechiffre, _ := rsa.DecryptOAEP(sha256.New(), rand.Reader, PrivKey, Filedata, []byte{})
-	return Mdpdechiffre
+	datadechiffre, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, PrivKey, Filedata, []byte{})
+	if err != nil {
+		fmt.Println(err)
+	}
+	return datadechiffre
 }
