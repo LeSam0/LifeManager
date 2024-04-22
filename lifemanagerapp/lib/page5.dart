@@ -88,7 +88,6 @@ class _Page5State extends State<Page5> {
         await http.get(Uri.parse('http://localhost:8000/login/motdepasse'));
 
     if (response.statusCode == 200) {
-      print(response.body);
       return response.body;
     } else {
 
