@@ -58,6 +58,13 @@ func API() {
 	http.HandleFunc("/courses/update", UpdateCourse)
 	http.HandleFunc("/courses/delete", DeleteCourse)
 
+	// Calendar
+
+	http.HandleFunc("/calendar/create", CreateEvent)
+	http.HandleFunc("/calendar/get", GetAllEvent)
+	http.HandleFunc("/calendar/update", UpdateEvent)
+	http.HandleFunc("/calendar/delete", DeleteEvent)
+
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
@@ -311,5 +318,41 @@ func GetAllCategorie(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		AllCategorie := LifeManager.GetCategorie()
 		json.NewEncoder(w).Encode(AllCategorie)
+	}
+}
+
+func CreateEvent(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		eventname := r.URL.Query().Get("name")
+		eventdate, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get("date"))
+		newEvent := LifeManager.NewCalendar(eventname, eventdate)
+		newEvent.AddCalendarToDB()
+	}
+
+}
+
+func UpdateEvent(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "PUT" {
+		id := r.URL.Query().Get("id")
+		eventname := r.URL.Query().Get("name")
+		eventdate, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get("date"))
+		newEvent := LifeManager.NewCalendar(eventname, eventdate)
+		newEvent.ModifCalendarToDB(id)
+	}
+}
+
+func DeleteEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "DELETE" {
+		id := r.URL.Query().Get("id")
+		LifeManager.SuppCalendarToDB(id)
+	}
+}
+
+func GetAllEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		liste_event := LifeManager.GetCalendar()
+		json.NewEncoder(w).Encode(liste_event)
 	}
 }
