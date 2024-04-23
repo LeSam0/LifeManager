@@ -1,9 +1,10 @@
 package main
 
 import (
-	LifeManager "LifeManager/Script/Safe_Chest"
+	LifeManager "LifeManager/API"
+	// LifeManagersc "LifeManager/Script"
 )
 
 func main() {
-	LifeManager.DeSecureFile()
+	LifeManager.API()
 }
