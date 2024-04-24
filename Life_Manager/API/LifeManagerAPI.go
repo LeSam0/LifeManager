@@ -55,6 +55,7 @@ func API() {
 
 	http.HandleFunc("/courses/create", CreateCourse)
 	http.HandleFunc("/courses/get", GetAllCourse)
+	http.HandleFunc("/courses/favorie/get", GetAllCourseFavorie)
 	http.HandleFunc("/courses/update", UpdateCourse)
 	http.HandleFunc("/courses/delete", DeleteCourse)
 
@@ -310,6 +311,14 @@ func GetAllCourse(w http.ResponseWriter, r *http.Request) {
 	// Methode := Get
 	if r.Method == "GET" {
 		Liste_course := LifeManager.GetListeByCategorie()
+		json.NewEncoder(w).Encode(Liste_course)
+	}
+}
+
+func GetAllCourseFavorie(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "GET" {
+		Liste_course := LifeManager.GetListeFavByCategorie()
 		json.NewEncoder(w).Encode(Liste_course)
 	}
 }
