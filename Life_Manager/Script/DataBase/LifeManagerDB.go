@@ -54,11 +54,17 @@ func Create() {
 	}
 	log.Println("Table categorie_course created successfully")
 	// Create table courses
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, favorie BOOLEAN, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
 	if err != nil {
 		panic(err)
 	}
 	log.Println("Table course created successfully")
+	// Create table courses_favori
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses_favori (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Table course_favorie created successfully")
 	// Create table depenses futur
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS depenses_futur (id INTEGER PRIMARY KEY AUTOINCREMENT, Nom TEXT, Montant FLOAT, Date DATETIME, Description TEXT, id_sous_categorie INTEGER , FOREIGN KEY (id_sous_categorie) REFERENCES sous_categorie_depense(id))")
 	if err != nil {

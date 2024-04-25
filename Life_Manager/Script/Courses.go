@@ -16,11 +16,10 @@ type Articles struct {
 	Article      string  `json:"Article,omitempty"`
 	Prix         float64 `json:"Prix,omitempty"`
 	Quantite     int     `json:"Quantite,omitempty"`
-	Favorie      bool    `json:"Favorie,omitempty"`
 }
 
-func NewArticle(Categorie_id int, Article string, Prix float64, Quantite int, Favorie bool) Articles {
-	liste := Articles{Categorie_id: Categorie_id, Article: Article, Prix: Prix, Quantite: Quantite, Favorie: Favorie}
+func NewArticle(Categorie_id int, Article string, Prix float64, Quantite int) Articles {
+	liste := Articles{Categorie_id: Categorie_id, Article: Article, Prix: Prix, Quantite: Quantite}
 	return liste
 }
 
@@ -29,7 +28,7 @@ func (Liste Articles) AddToDB() {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite, favorie) VALUES (?, ?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Favorie)
+	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite) VALUES (?, ?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite)
 	if err != nil {
 		panic(err)
 	}
@@ -52,7 +51,7 @@ func (Liste Articles) ModifToDB(id string) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ?, favorie = ?, where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Favorie, id)
+	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ? where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, id)
 	if err != nil {
 		panic(err)
 	}
@@ -65,14 +64,14 @@ func GetAllCourse() []Articles {
 		panic(err)
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite, favorie FROM courses")
+	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite FROM courses")
 	if err != nil {
 		panic(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var article Articles
-		err = rows.Scan(&article.Id, &article.Categorie_id, &article.Article, &article.Prix, &article.Quantite, &article.Favorie)
+		err = rows.Scan(&article.Id, &article.Categorie_id, &article.Article, &article.Prix, &article.Quantite)
 		if err != nil {
 			panic(err)
 		}
@@ -142,36 +141,4 @@ func GetListeByCategorie() []Articles {
 	return liste_course
 }
 
-func GetListeFavByCategorie() []Articles {
-	liste_course := GetAllCourseFav()
-	for i := range liste_course {
-		liste_course[i].Categorie = GetCategoriebyId(liste_course[i].Categorie_id)
-	}
-	return liste_course
-}
 
-func GetAllCourseFav() []Articles {
-	var articlesfav []Articles
-	db, err := sql.Open("sqlite3", "./LifeManager.db")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite, favorie FROM courses WHERE favorie = ?", true)
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var articlefav Articles
-		err = rows.Scan(&articlefav.Id, &articlefav.Categorie_id, &articlefav.Article, &articlefav.Prix, &articlefav.Quantite, &articlefav.Favorie)
-		if err != nil {
-			panic(err)
-		}
-		articlesfav = append(articlesfav, articlefav)
-	}
-	if err = rows.Err(); err != nil {
-		panic(err)
-	}
-	return articlesfav
-}
