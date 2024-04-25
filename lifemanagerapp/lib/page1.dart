@@ -1,3 +1,6 @@
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'calendar_item.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -10,6 +13,119 @@ class Page1 extends StatefulWidget {
 
 class _Page1State extends State<Page1> {
   DateTime? _selectedDay;
+  List<CalendarItem> calendarItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchEvent();
+  }
+
+  Future<void> fetchEvent() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/calendar/get'));
+
+    if (response.statusCode == 200) {
+      if (json.decode(response.body) != null) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          calendarItems = data
+              .map<CalendarItem>((item) => CalendarItem(
+                    id: item['EventId'].toString(),
+                    eventName: item['EventName'].toString(),
+                    eventDate: item['EventDate'].toString(),
+                  ))
+              .toList();
+        });
+      } else {
+        calendarItems = [];
+      }
+    } else {
+      throw Exception('Failed to load event');
+    }
+  }
+
+  Future<void> addEvent(String eventName, DateTime eventDate) async {
+    final url = Uri.parse('http://localhost:8000/calendar/create').replace(
+      queryParameters: {
+        'eventName': eventName,
+        'eventDate': eventDate.toString(),
+      },
+    );
+
+    final response = await http.post(url);
+    if (response.statusCode == 200) {
+      fetchEvent();
+    } else {
+      throw Exception('Failed to add event');
+    }
+  }
+
+  void _showAddEventDialog(BuildContext context) {
+    String eventName = '';
+    DateTime? eventDate;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Ajouter un événement'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: 'Nom de l\'événement'),
+                onChanged: (value) {
+                  eventName = value;
+                },
+              ),
+              SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2022),
+                    lastDate: DateTime(2025),
+                  ).then((selectedDate) {
+                    if (selectedDate != null) {
+                      setState(() {
+                        eventDate = selectedDate;
+                      });
+                    }
+                  });
+                },
+                child: Text(
+                  eventDate != null
+                      ? 'Date: ${eventDate!.day}/${eventDate!.month}/${eventDate!.year}'
+                      : 'Sélectionner une date',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (eventName.isNotEmpty && eventDate != null) {
+                  addEvent(eventName, eventDate!);
+                  Navigator.of(context).pop();
+                } else {
+                 
+                }
+              },
+              child: Text('Ajouter'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +136,7 @@ class _Page1State extends State<Page1> {
       body: Center(
         child: LayoutBuilder(
           builder: (context, constraints) {
-
             return Stack(
-              
               children: [
                 Container(
                   width: constraints.maxWidth * 0.8,
@@ -66,7 +180,7 @@ class _Page1State extends State<Page1> {
                   right: 20,
                   child: FloatingActionButton(
                     onPressed: () {
-                      print('Ajouter événement à $_selectedDay');
+                      _showAddEventDialog(context);
                     },
                     child: Icon(Icons.add),
                   ),

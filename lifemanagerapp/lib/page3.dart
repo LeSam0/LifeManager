@@ -23,7 +23,7 @@ class _Page3State extends State<Page3> {
     super.initState();
     fetchCategories();
     fetchArticles();
-    fetchFavoriteArticles();
+    fetchArticlesFav();
   }
 
   Future<void> fetchCategories() async {
@@ -50,23 +50,58 @@ class _Page3State extends State<Page3> {
         await http.get(Uri.parse('http://localhost:8000/courses/get'));
 
     if (response.statusCode == 200) {
+      if (json.decode(response.body) != null) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
         courseItems = data
             .map<CourseItem>((item) => CourseItem(
                   id: item['Id'].toString(),
                   name: item['Article'].toString(),
-                  price: item['Prix'] != null &&
-                          item['Prix'].toString().isNotEmpty
-                      ? double.parse(item['Prix'].toString())
-                      : 0.0,
-                  category: item['Categorie_Nom'].toString(),
+                  price:
+                      item['Prix'] != null && item['Prix'].toString().isNotEmpty
+                          ? double.parse(item['Prix'].toString())
+                          : 0.0,
+                  category: item['Categorie_Name'].toString(),
                   categorie_id: item['Categorie_Id'].toString(),
                   quantite: int.parse(item['Quantite'].toString()),
                   isFavorite: item['favorie'] == 'true',
                 ))
             .toList();
       });
+      } else {
+        courseItems = [];
+      }
+    } else {
+      throw Exception('Failed to load articles');
+    }
+  }
+
+  Future<void> fetchArticlesFav() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/courses/favorie/get'));
+
+    if (response.statusCode == 200) {
+      if (json.decode(response.body) != null) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          favoriteItems = data
+              .map<CourseItem>((item) => CourseItem(
+                    id: item['Id'].toString(),
+                    name: item['Article'].toString(),
+                    price: item['Prix'] != null &&
+                            item['Prix'].toString().isNotEmpty
+                        ? double.parse(item['Prix'].toString())
+                        : 0.0,
+                    category: item['Categorie_Name'].toString(),
+                    categorie_id: item['Categorie_Id'].toString(),
+                    quantite: int.parse(item['Quantite'].toString()),
+                    isFavorite: item['favorie'] == 'true',
+                  ))
+              .toList();
+        });
+      } else {
+        favoriteItems = [];
+      }
     } else {
       throw Exception('Failed to load articles');
     }
@@ -108,8 +143,8 @@ class _Page3State extends State<Page3> {
     }
   }
 
-  Future<void> updateFavoriteItem(String id,String name, double price, String categoryId,
-      int quantity, bool isFavorite) async {
+  Future<void> updateFavoriteItem(String id, String name, double price,
+      String categoryId, int quantity, bool isFavorite) async {
     final url = Uri.parse('http://localhost:8000/courses/update').replace(
       queryParameters: {
         'id': id,
@@ -124,21 +159,21 @@ class _Page3State extends State<Page3> {
     final response = await http.put(url);
     if (response.statusCode == 200) {
       fetchArticles();
-      if (isFavorite) {
-        CourseItem item = courseItems.firstWhere((item) => item.id == id);
-        favoriteItems.add(item);
-      } else {
-        favoriteItems.removeWhere((item) => item.id == id);
-      }
+      fetchArticlesFav();
     } else {
       throw Exception('Failed to update favorite item');
     }
   }
 
-  Future<void> removeFavoriteItem(String id) async {
+  Future<void> removeFavoriteItem(String id, String name, double price,
+      String categoryId, int quantity) async {
     final url = Uri.parse('http://localhost:8000/courses/update').replace(
       queryParameters: {
         'id': id,
+        'categorie_id': categoryId,
+        'article': name,
+        'prix': price.toString(),
+        'quantite': quantity.toString(),
         'favorie': 'false',
       },
     );
@@ -146,32 +181,9 @@ class _Page3State extends State<Page3> {
 
     if (response.statusCode == 200) {
       fetchArticles();
+      fetchArticlesFav();
     } else {
       throw Exception('Failed to remove item from favorites');
-    }
-  }
-
-  Future<void> fetchFavoriteArticles() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:8000/courses/favori/get'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        favoriteItems = data
-            .map<CourseItem>((item) => CourseItem(
-                  id: item['Id'].toString(),
-                  name: item['Article'].toString(),
-                  price: double.parse(item['Prix'].toString()),
-                  category: item['Categorie_Nom'].toString(),
-                  categorie_id: item['Categorie_Id'].toString(),
-                  quantite: int.parse(item['Quantite'].toString()),
-                  isFavorite: true,
-                ))
-            .toList();
-      });
-    } else {
-      throw Exception('Failed to load favorite articles');
     }
   }
 
@@ -285,9 +297,7 @@ class _Page3State extends State<Page3> {
                                               filteredItems[index].price,
                                               filteredItems[index].categorie_id,
                                               filteredItems[index].quantite,
-                                              !filteredItems[index].isFavorite
-                                          );
-                      
+                                              !filteredItems[index].isFavorite);
                                         });
                                       },
                                       child: Icon(
@@ -362,7 +372,13 @@ class _Page3State extends State<Page3> {
                               icon: Icon(Icons.delete),
                               onPressed: () {
                                 setState(() {
-                                  removeFavoriteItem(favoriteItems[index].id);
+                                  removeFavoriteItem(
+                                    filteredItems[index].id,
+                                    filteredItems[index].name,
+                                    filteredItems[index].price,
+                                    filteredItems[index].categorie_id,
+                                    filteredItems[index].quantite,
+                                  );
                                 });
                               },
                             ),
