@@ -52,7 +52,7 @@ func (Liste Articles) ModifToDB(id string) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ?, favorie = ?, where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Favorie, id)
+	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ?, favorie = ? where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Favorie, id)
 	if err != nil {
 		panic(err)
 	}

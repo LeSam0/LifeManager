@@ -12,7 +12,7 @@ type MDP struct {
 }
 
 func Newmdp() MDP {
-	cmd := exec.Command("python", "./Python/MotDePasse.py")
+	cmd := exec.Command("python","./Python/MotDePasse.py")
 	out, err := cmd.Output()
 	if err != nil {
 		panic(err.Error())
