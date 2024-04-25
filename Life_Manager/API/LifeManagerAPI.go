@@ -55,9 +55,16 @@ func API() {
 
 	http.HandleFunc("/courses/create", CreateCourse)
 	http.HandleFunc("/courses/get", GetAllCourse)
-	http.HandleFunc("/courses/favorie/get", GetAllCourseFavorie)
 	http.HandleFunc("/courses/update", UpdateCourse)
 	http.HandleFunc("/courses/delete", DeleteCourse)
+
+	// Course Favorie
+
+	http.HandleFunc("/courses/favorie/create", CreateCourseFavorie)
+	http.HandleFunc("/courses/favorie/get", GetAllCourseFavorie)
+	http.HandleFunc("/courses/favorie/update", UpdateCourseFavorie)
+	http.HandleFunc("/courses/favorie/delete", DeleteCourseFavorie)
+	
 
 	// Calendar
 
@@ -267,7 +274,7 @@ func CreateCourse(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, false)
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
 		newArticle.AddToDB()
 	}
 }
@@ -283,12 +290,7 @@ func UpdateCourse(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		save := r.URL.Query().Get("favorie")
-		favorie := false
-		if save == "true" {
-			favorie = true
-		}
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, favorie)
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
 		newArticle.ModifToDB(id)
 	}
 }
@@ -320,6 +322,38 @@ func GetAllCourseFavorie(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		Liste_course := LifeManager.GetListeFavByCategorie()
 		json.NewEncoder(w).Encode(Liste_course)
+	}
+}
+
+func CreateCourseFavorie(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		categorie_id, _ := strconv.Atoi(r.URL.Query().Get("categorie_id"))
+		article := r.URL.Query().Get("article")
+		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
+		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		newArticle.AddFavToDB()
+	}
+}
+
+func UpdateCourseFavorie(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "PUT" {
+		id := r.URL.Query().Get("id")
+		categorie_id, _ := strconv.Atoi(r.URL.Query().Get("categorie_id"))
+		article := r.URL.Query().Get("article")
+		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
+		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		newArticle.ModifFavToDB(id)
+	}
+}
+
+func DeleteCourseFavorie(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "DELETE" {
+		id := r.URL.Query().Get("id")
+		LifeManager.SuppFavToDB(id)
 	}
 }
 
