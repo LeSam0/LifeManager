@@ -1,8 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'calendar_item.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'calendar_item.dart';
+import 'package:intl/intl.dart';
 
 class Page1 extends StatefulWidget {
   const Page1({Key? key}) : super(key: key);
@@ -33,7 +34,7 @@ class _Page1State extends State<Page1> {
               .map<CalendarItem>((item) => CalendarItem(
                     id: item['EventId'].toString(),
                     eventName: item['EventName'].toString(),
-                    eventDate: item['EventDate'].toString(),
+                    eventDate: DateTime.parse(item['EventDate']),
                   ))
               .toList();
         });
@@ -46,24 +47,24 @@ class _Page1State extends State<Page1> {
   }
 
   Future<void> addEvent(String eventName, DateTime eventDate) async {
-    final url = Uri.parse('http://localhost:8000/calendar/create').replace(
-      queryParameters: {
-        'eventName': eventName,
-        'eventDate': eventDate.toString(),
-      },
-    );
-
-    final response = await http.post(url);
-    if (response.statusCode == 200) {
-      fetchEvent();
-    } else {
-      throw Exception('Failed to add event');
+    try {
+      final formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(eventDate);
+      final url = Uri.parse(
+          'http://localhost:8000/calendar/create?name=$eventName&date=$formattedDate');
+      final response = await http.post(url);
+      if (response.statusCode == 200) {
+        fetchEvent();
+      } else {
+        throw Exception('Failed to add event');
+      }
+    } catch (error) {
+      print('Error adding event: $error');
     }
   }
 
   void _showAddEventDialog(BuildContext context) {
     String eventName = '';
-    DateTime? eventDate;
+    TimeOfDay selectedTime = TimeOfDay.now();
 
     showDialog(
       context: context,
@@ -80,26 +81,19 @@ class _Page1State extends State<Page1> {
                 },
               ),
               SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  showDatePicker(
+              ElevatedButton(
+                onPressed: () async {
+                  final pickedTime = await showTimePicker(
                     context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2022),
-                    lastDate: DateTime(2025),
-                  ).then((selectedDate) {
-                    if (selectedDate != null) {
-                      setState(() {
-                        eventDate = selectedDate;
-                      });
-                    }
-                  });
+                    initialTime: selectedTime,
+                  );
+                  if (pickedTime != null) {
+                    setState(() {
+                      selectedTime = pickedTime;
+                    });
+                  }
                 },
-                child: Text(
-                  eventDate != null
-                      ? 'Date: ${eventDate!.day}/${eventDate!.month}/${eventDate!.year}'
-                      : 'Sélectionner une date',
-                ),
+                child: Text('Sélectionner l\'heure'),
               ),
             ],
           ),
@@ -112,12 +106,17 @@ class _Page1State extends State<Page1> {
             ),
             TextButton(
               onPressed: () {
-                if (eventName.isNotEmpty && eventDate != null) {
-                  addEvent(eventName, eventDate!);
+                if (eventName.isNotEmpty && _selectedDay != null) {
+                  final eventDate = DateTime(
+                    _selectedDay!.year,
+                    _selectedDay!.month,
+                    _selectedDay!.day,
+                    selectedTime.hour,
+                    selectedTime.minute,
+                  );
+                  addEvent(eventName, eventDate);
                   Navigator.of(context).pop();
-                } else {
-                 
-                }
+                } else {}
               },
               child: Text('Ajouter'),
             ),
@@ -125,6 +124,13 @@ class _Page1State extends State<Page1> {
         );
       },
     );
+  }
+
+  bool hasEventsForDay(DateTime day) {
+    return calendarItems.any((item) =>
+        item.eventDate.year == day.year &&
+        item.eventDate.month == day.month &&
+        item.eventDate.day == day.day);
   }
 
   @override
@@ -152,9 +158,13 @@ class _Page1State extends State<Page1> {
                     headerVisible: false,
                     calendarStyle: CalendarStyle(
                       todayDecoration: BoxDecoration(
-                          color: Colors.blue, shape: BoxShape.circle),
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
                       selectedDecoration: BoxDecoration(
-                          color: Colors.red, shape: BoxShape.circle),
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                     daysOfWeekStyle: DaysOfWeekStyle(
                       weekdayStyle: TextStyle(color: Colors.red),
@@ -173,6 +183,12 @@ class _Page1State extends State<Page1> {
                         _selectedDay = selectedDay;
                       });
                     },
+                    availableCalendarFormats: {
+                      CalendarFormat.month: 'Mois',
+                      CalendarFormat.twoWeeks: '2 Semaines',
+                      CalendarFormat.week: 'Semaine',
+                    },
+                    eventLoader: (day) => hasEventsForDay(day) ? [day] : [],
                   ),
                 ),
                 Positioned(

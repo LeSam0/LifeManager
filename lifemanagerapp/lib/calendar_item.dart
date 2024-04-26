@@ -1,6 +1,6 @@
 class CalendarItem {
   final String eventName;
-  final String eventDate;
+  final DateTime eventDate;
   final String id;
 
 
