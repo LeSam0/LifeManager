@@ -16,17 +16,16 @@ class Page4 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Espace au-dessus des boîtes
             SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-            // Row pour aligner les boîtes côte à côte
+            
             Row(
               mainAxisAlignment:
-                  MainAxisAlignment.start, // Aligner les boîtes au début
+                  MainAxisAlignment.start, 
               children: [
-                // Boîte sur le côté
+                
                 Container(
                   width: MediaQuery.of(context).size.width *
-                      0.15, // Ajuster la largeur de la boîte sur le côté
+                      0.15, 
                   height: MediaQuery.of(context).size.height * 0.5,
                   alignment: Alignment.centerLeft,
                   decoration: BoxDecoration(
@@ -38,13 +37,13 @@ class Page4 extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Contenu de la boîte sur le côté
+                      
                       Text('je sais pas il y a rien sur figma'),
                     ],
                   ),
                 ),
-                SizedBox(width: 90), // Espace entre les boîtes
-                // Boîte au milieu
+                SizedBox(width: 90), 
+                
                 Container(
                   width: MediaQuery.of(context).size.width * 0.4,
                   height: MediaQuery.of(context).size.height * 0.6,

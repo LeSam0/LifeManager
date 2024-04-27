@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'page1.dart';
 import 'page2.dart';
 import 'page3.dart';
@@ -40,120 +41,172 @@ class HomePage extends StatelessWidget {
         padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width * 0.1,
         ),
-        child: Center(
-          child: Row(
-            children: [
-              // Menu sur le côté droit
-              Container(
-                width: MediaQuery.of(context).size.width * 0.15,
-                height: MediaQuery.of(context).size.height * 0.5,
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  'assets/logo.png',
+                  height: 150,
                 ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/page1');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.height * 0.02,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      icon: Icon(Icons.calendar_month), // Icône à afficher
-                      label: const Text('Calendrier'), // Texte du bouton
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/page2');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.height * 0.02,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      icon: Icon(Icons.monetization_on), // Icône à afficher
-                      label: const Text('Depenses'), // Texte du bouton
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/page3');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.height * 0.02,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      icon: Icon(Icons.shopping_cart), // Icône à afficher
-                      label: const Text('Courses'), // Texte du bouton
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/page4');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.height * 0.02,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      icon: Icon(Icons.food_bank), // Icône à afficher
-                      label: const Text('Menu'), // Texte du bouton
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/page5');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: MediaQuery.of(context).size.height * 0.02,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      icon: Icon(Icons.key), // Icône à afficher
-                      label: const Text('Mot de passe'), // Texte du bouton
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-              // Ajout de la nouvelle boîte Expanded
-
-              Container(
-                width: MediaQuery.of(context).size.width * 0.5,
-                height: MediaQuery.of(context).size.height * 0.6,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Center(
-                  child: Text(
-                    'Contenu de la nouvelle boîte',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                SizedBox(width: 20),
+                Text(
+                  'Bienvenue sur votre life manager',
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.15,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page1');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.calendar_month),
+                        label: const Text('Calendrier'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page2');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.monetization_on),
+                        label: const Text('Dépenses'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page3');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.shopping_cart),
+                        label: const Text('Courses'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page4');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.food_bank),
+                        label: const Text('Menu'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page5');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.key),
+                        label: const Text('Mot de passe'),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: TableCalendar(
+                      focusedDay: DateTime.now(),
+                      firstDay: DateTime(2022, 1, 1),
+                      lastDay: DateTime(2025, 12, 31),
+                      headerVisible: false,
+                      calendarStyle: CalendarStyle(
+                        todayDecoration: BoxDecoration(
+                            color: Colors.blue, shape: BoxShape.circle),
+                        selectedDecoration: BoxDecoration(
+                            color: Colors.red, shape: BoxShape.circle),
+                      ),
+                      daysOfWeekStyle: DaysOfWeekStyle(
+                        weekdayStyle: TextStyle(color: Colors.red),
+                        weekendStyle: TextStyle(color: Colors.green),
+                      ),
+                      headerStyle: HeaderStyle(
+                        titleTextStyle: TextStyle(fontSize: 20),
+                      ),
+                      rowHeight: MediaQuery.of(context).size.height * 0.1,
+                      daysOfWeekHeight:
+                          MediaQuery.of(context).size.height * 0.1,
+                    ),
+                  ),
+                ),
+                SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.15,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text("peut etre le profil du user inchallah")
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

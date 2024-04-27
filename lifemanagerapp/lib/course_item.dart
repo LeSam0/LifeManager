@@ -5,7 +5,6 @@ class CourseItem {
   final String categorie_id;
   final String id;
   final int quantite;
-  bool isFavorite;
 
   CourseItem({
     required this.name,
@@ -14,6 +13,5 @@ class CourseItem {
     required this.categorie_id,
     required this.id,
     required this.quantite,
-    this.isFavorite = false,
   });
 }

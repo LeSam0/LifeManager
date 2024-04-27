@@ -23,7 +23,6 @@ class _Page3State extends State<Page3> {
     super.initState();
     fetchCategories();
     fetchArticles();
-    fetchFavoriteArticles();
   }
 
   Future<void> fetchCategories() async {
@@ -39,29 +38,9 @@ class _Page3State extends State<Page3> {
                   'name': category['Categorie_Name'].toString(),
                 })
             .toList();
-        categories.add({'id': 'quantite', 'name': 'Quantité'});
       });
     } else {
       throw Exception('Failed to load categories');
-    }
-  }
-
-  Future<void> addItem(String name, double price, String categoryId,
-      int quantity, bool isFavorite) async {
-    final url = Uri.parse('http://localhost:8000/courses/create').replace(
-      queryParameters: {
-        'categorie_id': categoryId,
-        'article': name,
-        'prix': price.toString(),
-        'quantite': quantity.toString(),
-      },
-    );
-
-    final response = await http.post(url);
-    if (response.statusCode == 200) {
-      fetchArticles();
-    } else {
-      throw Exception('Failed to add item');
     }
   }
 
@@ -70,44 +49,28 @@ class _Page3State extends State<Page3> {
         await http.get(Uri.parse('http://localhost:8000/courses/get'));
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        courseItems = data
-            .map<CourseItem>((item) => CourseItem(
-                id: item['Id'].toString(),
-                name: item['Article'].toString(),
-                price: double.parse(item['Prix'].toString()),
-                category: item['Categorie_Nom'].toString(),
-                categorie_id: item['Categorie_Id'].toString(),
-                quantite: int.parse(item['Quantite'].toString()),
-                isFavorite: false))
-            .toList();
-      });
+      if (json.decode(response.body) != null) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          courseItems = data
+              .map<CourseItem>((item) => CourseItem(
+                    id: item['Id'].toString(),
+                    name: item['Article'].toString(),
+                    price: item['Prix'] != null &&
+                            item['Prix'].toString().isNotEmpty
+                        ? double.parse(item['Prix'].toString())
+                        : 0.0,
+                    category: item['Categorie_Name'].toString(),
+                    categorie_id: item['Categorie_Id'].toString(),
+                    quantite: int.parse(item['Quantite'].toString()),
+                  ))
+              .toList();
+        });
+      } else {
+        courseItems = [];
+      }
     } else {
       throw Exception('Failed to load articles');
-    }
-  }
-
-  Future<void> fetchFavoriteArticles() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:8000/courses/favori/get'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        favoriteItems = data
-            .map<CourseItem>((item) => CourseItem(
-                id: item['Id'].toString(),
-                name: item['Article'].toString(),
-                price: double.parse(item['Prix'].toString()),
-                category: item['Categorie_Nom'].toString(),
-                categorie_id: item['Categorie_Id'].toString(),
-                quantite: int.parse(item['Quantite'].toString()),
-                isFavorite: true))
-            .toList();
-      });
-    } else {
-      throw Exception('Failed to load favorite articles');
     }
   }
 
@@ -127,11 +90,51 @@ class _Page3State extends State<Page3> {
     }
   }
 
-  Future<void> addFavoriteItem(
-      String categoryId, String name, double price, int quantity) async {
-    final url =
-        Uri.parse('http://localhost:8000/courses/favori/create').replace(
+  Future<void> addItem(
+      String name, double price, String categoryId, int quantity) async {
+    final url = Uri.parse('http://localhost:8000/courses/create').replace(
       queryParameters: {
+        'categorie_id': categoryId,
+        'article': name,
+        'prix': price.toString(),
+        'quantite': quantity.toString(),
+      },
+    );
+
+    final response = await http.post(url);
+    if (response.statusCode == 200) {
+      fetchArticles();
+    } else {
+      throw Exception('Failed to add item');
+    }
+  }
+
+  Future<void> _updateItem(
+      String id, String newName, double newPrice, int newQuantity, String categoryId) async {
+    final url = Uri.parse('http://localhost:8000/courses/update').replace(
+      queryParameters: {
+        'categorie_id': categoryId,
+        'id': id,
+        'article': newName,
+        'prix': newPrice.toString(),
+        'quantite': newQuantity.toString(),
+      },
+    );
+
+    final response = await http.put(url);
+    if (response.statusCode == 200) {
+      fetchArticles();
+    } else {
+      throw Exception('Failed to update item');
+    }
+  }
+
+  Future<void> addFavoriteItem(String name, double price, String categoryId,
+      int quantity, String id) async {
+    final url =
+        Uri.parse('http://localhost:8000/courses/favorie/create').replace(
+      queryParameters: {
+        'id': id,
         'categorie_id': categoryId,
         'article': name,
         'prix': price.toString(),
@@ -143,18 +146,49 @@ class _Page3State extends State<Page3> {
     if (response.statusCode == 200) {
       fetchFavoriteArticles();
     } else {
-      throw Exception('Failed to add favorite item');
+      throw Exception('Failed to add item to favorites');
     }
   }
 
   Future<void> removeFavoriteItem(String id) async {
-    final url = Uri.parse('http://localhost:8000/courses/favori/delete?id=$id');
-    final response = await http.delete(url);
+    final url =
+        Uri.parse('http://localhost:8000/courses/favorie/delete').replace(
+      queryParameters: {
+        'id': id,
+      },
+    );
 
+    final response = await http.delete(url);
     if (response.statusCode == 200) {
       fetchFavoriteArticles();
     } else {
       throw Exception('Failed to remove item from favorites');
+    }
+  }
+
+  Future<void> fetchFavoriteArticles() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/courses/favori/get'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        favoriteItems = data
+            .map<CourseItem>((item) => CourseItem(
+                  id: item['Id'].toString(),
+                  name: item['Article'].toString(),
+                  price:
+                      item['Prix'] != null && item['Prix'].toString().isNotEmpty
+                          ? double.parse(item['Prix'].toString())
+                          : 0.0,
+                  category: item['Categorie_Name'].toString(),
+                  categorie_id: item['Categorie_Id'].toString(),
+                  quantite: int.parse(item['Quantite'].toString()),
+                ))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load favorite articles');
     }
   }
 
@@ -192,7 +226,13 @@ class _Page3State extends State<Page3> {
                           categories.map<DropdownMenuItem<String>>((category) {
                         return DropdownMenuItem<String>(
                           value: category['id'],
-                          child: Text(category['name']),
+                          child: Text(
+                            category['name'],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         );
                       }).toList(),
                     ),
@@ -218,15 +258,28 @@ class _Page3State extends State<Page3> {
                                 });
                               },
                               child: ListTile(
-                                title: Text(filteredItems[index].category),
+                                title: Text(
+                                  filteredItems[index].category,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Nom: ${filteredItems[index].name}'),
                                     Text(
-                                        'Prix: ${filteredItems[index].price.toString()} €'),
+                                      'Nom: ${filteredItems[index].name}',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
                                     Text(
-                                        'Quantite: ${filteredItems[index].quantite.toString()}'),
+                                      'Prix: ${filteredItems[index].price.toString()} €',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                    Text(
+                                      'Quantite: ${filteredItems[index].quantite.toString()}',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
                                   ],
                                 ),
                                 trailing: Row(
@@ -245,11 +298,126 @@ class _Page3State extends State<Page3> {
                                       onPressed: () {
                                         setState(() {
                                           addFavoriteItem(
-                                              filteredItems[index].categorie_id,
                                               filteredItems[index].name,
                                               filteredItems[index].price,
-                                              filteredItems[index].quantite);
+                                              filteredItems[index].categorie_id,
+                                              filteredItems[index].quantite,
+                                              filteredItems[index].id);
                                         });
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            String newName =
+                                                filteredItems[index].name;
+                                            double newPrice =
+                                                filteredItems[index].price;
+                                            int newQuantity =
+                                                filteredItems[index].quantite;
+
+                                            return StatefulBuilder(
+                                              builder: (BuildContext context,
+                                                  StateSetter setState) {
+                                                return AlertDialog(
+                                                  title: Text(
+                                                      'Modifier l\'élément'),
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      TextField(
+                                                        decoration: InputDecoration(
+                                                            labelText:
+                                                                'Nouveau nom',
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        14)),
+                                                        onChanged: (value) {
+                                                          newName = value;
+                                                        },
+                                                        controller:
+                                                            TextEditingController(
+                                                                text: newName),
+                                                      ),
+                                                      TextField(
+                                                        decoration: InputDecoration(
+                                                            labelText:
+                                                                'Nouveau prix (€)',
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        14)),
+                                                        onChanged: (value) {
+                                                          newPrice =
+                                                              double.tryParse(
+                                                                      value) ??
+                                                                  0.0;
+                                                        },
+                                                        keyboardType: TextInputType
+                                                            .numberWithOptions(
+                                                                decimal: true),
+                                                        controller:
+                                                            TextEditingController(
+                                                                text: newPrice
+                                                                    .toString()),
+                                                      ),
+                                                      TextField(
+                                                        decoration: InputDecoration(
+                                                            labelText:
+                                                                'Nouvelle quantité',
+                                                            labelStyle:
+                                                                TextStyle(
+                                                                    fontSize:
+                                                                        14)),
+                                                        onChanged: (value) {
+                                                          newQuantity =
+                                                              int.tryParse(
+                                                                      value) ??
+                                                                  0;
+                                                        },
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        controller:
+                                                            TextEditingController(
+                                                                text: newQuantity
+                                                                    .toString()),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text('Annuler'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        _updateItem(
+                                                          filteredItems[index]
+                                                                .id,
+                                                          newName,
+                                                            newPrice,
+                                                            newQuantity,
+                                                          filteredItems[index].categorie_id
+                                                            
+                                                            );
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text('Modifier'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          },
+                                        );
                                       },
                                     ),
                                   ],
@@ -273,7 +441,13 @@ class _Page3State extends State<Page3> {
               ),
               child: Column(
                 children: [
-                  Text('Favoris'),
+                  Text(
+                    'Favoris',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -284,22 +458,37 @@ class _Page3State extends State<Page3> {
                         itemCount: favoriteItems.length,
                         itemBuilder: (context, index) {
                           return ListTile(
-                            title: Text(favoriteItems[index].category),
+                            title: Text(
+                              favoriteItems[index].category,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Nom: ${favoriteItems[index].name}'),
                                 Text(
-                                    'Prix: ${favoriteItems[index].price.toString()} €'),
+                                  'Nom: ${favoriteItems[index].name}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
                                 Text(
-                                    'Quantite: ${favoriteItems[index].quantite}'),
+                                  'Prix: ${favoriteItems[index].price.toString()} €',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  'Quantite: ${favoriteItems[index].quantite}',
+                                  style: TextStyle(fontSize: 14),
+                                ),
                               ],
                             ),
                             trailing: IconButton(
                               icon: Icon(Icons.delete),
                               onPressed: () {
                                 setState(() {
-                                  removeFavoriteItem(favoriteItems[index].id);
+                                  removeFavoriteItem(
+                                    filteredItems[index].id,
+                                  );
                                 });
                               },
                             ),
@@ -325,7 +514,7 @@ class _Page3State extends State<Page3> {
                 builder: (BuildContext context, StateSetter setState) {
                   return AlertDialog(
                     title: Text('Ajouter un élément à la liste de courses'),
-                     content: Column(
+                    content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         DropdownButton<String>(
@@ -333,7 +522,7 @@ class _Page3State extends State<Page3> {
                               ? Text('Sélectionner une catégorie')
                               : null,
                           value: selectedCategoryIdToAdd,
-                         onChanged: (String? value) {
+                          onChanged: (String? value) {
                             setState(() {
                               selectedCategoryIdToAdd = value;
                             });
@@ -342,13 +531,20 @@ class _Page3State extends State<Page3> {
                             (Map<String, dynamic> category) {
                               return DropdownMenuItem<String>(
                                 value: category['id'],
-                                child: Text(category['name']),
+                                child: Text(
+                                  category['name'],
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                ),
                               );
                             },
                           ).toList(),
                         ),
                         TextField(
-                          decoration: InputDecoration(labelText: 'Quantité'),
+                          decoration: InputDecoration(
+                              labelText: 'Quantité',
+                              labelStyle: TextStyle(fontSize: 14)),
                           onChanged: (value) {
                             selectedQuantity = int.tryParse(value);
                           },
@@ -356,15 +552,17 @@ class _Page3State extends State<Page3> {
                               TextInputType.numberWithOptions(decimal: false),
                         ),
                         TextField(
-                          decoration:
-                              InputDecoration(labelText: 'Nom de l\'élément'),
+                          decoration: InputDecoration(
+                              labelText: 'Nom de l\'élément',
+                              labelStyle: TextStyle(fontSize: 14)),
                           onChanged: (value) {
                             newName = value;
                           },
                         ),
                         TextField(
                           decoration: InputDecoration(
-                              labelText: 'Prix de l\'élément (€)'),
+                              labelText: 'Prix de l\'élément (€)',
+                              labelStyle: TextStyle(fontSize: 14)),
                           onChanged: (value) {
                             newPrice = double.tryParse(value) ?? 0.0;
                           },
@@ -385,11 +583,11 @@ class _Page3State extends State<Page3> {
                           if (selectedCategoryIdToAdd != null) {
                             if (selectedQuantity != null) {
                               addItem(
-                                  newName,
-                                  newPrice,
-                                  selectedCategoryIdToAdd!,
-                                  selectedQuantity!,
-                                  false);
+                                newName,
+                                newPrice,
+                                selectedCategoryIdToAdd!,
+                                selectedQuantity!,
+                              );
                               Navigator.pop(context);
                             } else {
                               showDialog(
