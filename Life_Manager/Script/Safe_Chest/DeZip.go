@@ -86,32 +86,17 @@ func GetFileTodeSecure(files []string, filesdb []FileName) []FileDos {
 
 func GetOrderOfFile(filesname FileDos) FileDos {
 	var result FileDos
+
 	filenamemd5 := StringToMd5(filesname.truefilename)
-	if (filesname.filename[0] + filesname.filename[1] + filesname.filename[2]) == filenamemd5 {
-		result.filename = append(result.filename, filesname.filename[0])
-		result.filename = append(result.filename, filesname.filename[1])
-		result.filename = append(result.filename, filesname.filename[2])
-	} else if (filesname.filename[0] + filesname.filename[2] + filesname.filename[1]) == filenamemd5 {
-		result.filename = append(result.filename, filesname.filename[0])
-		result.filename = append(result.filename, filesname.filename[2])
-		result.filename = append(result.filename, filesname.filename[1])
-	} else if (filesname.filename[1] + filesname.filename[2] + filesname.filename[0]) == filenamemd5 {
-		result.filename = append(result.filename, filesname.filename[1])
-		result.filename = append(result.filename, filesname.filename[2])
-		result.filename = append(result.filename, filesname.filename[0])
-	} else if (filesname.filename[1] + filesname.filename[0] + filesname.filename[2]) == filenamemd5 {
-		result.filename = append(result.filename, filesname.filename[1])
-		result.filename = append(result.filename, filesname.filename[0])
-		result.filename = append(result.filename, filesname.filename[2])
-	} else if (filesname.filename[2] + filesname.filename[0] + filesname.filename[1]) == filenamemd5 {
-		result.filename = append(result.filename, filesname.filename[2])
-		result.filename = append(result.filename, filesname.filename[0])
-		result.filename = append(result.filename, filesname.filename[1])
-	} else if (filesname.filename[2] + filesname.filename[1] + filesname.filename[0]) == filenamemd5 {
-		result.filename = append(result.filename, filesname.filename[2])
-		result.filename = append(result.filename, filesname.filename[1])
-		result.filename = append(result.filename, filesname.filename[0])
+	arrayfile := SplitString(filenamemd5)
+	for _, c := range arrayfile {
+		for o := 0; o < 6 ; o ++ {
+			if filesname.filename[o] == c {
+				result.filename = append(result.filename ,filesname.filename[o])
+			}
+		}
 	}
+
 	result.truefilename = filesname.truefilename
 	return result
 }
@@ -128,4 +113,27 @@ func DeChiffrement(Filedata []byte, PrivKey *rsa.PrivateKey) []byte {
 		fmt.Println(err)
 	}
 	return datadechiffre
+}
+
+func SplitString(str string) []string {
+	var result []string
+	n := len(str) / 6
+	for i := 0; i < 6; i++ {
+		min := i * n
+		max := (i + 1) * n
+		result = append(result, str[min:max])
+	}
+	return result
+}
+
+func DeleteSecureFile(id int){
+	db, err := sql.Open("sqlite3", "./LifeManager.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	_, err = db.Exec("DELETE FROM secure_chest WHERE id = ?", id)
+	if err != nil {
+		panic(err)
+	}
 }

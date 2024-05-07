@@ -88,9 +88,9 @@ class _Page5State extends State<Page5> {
         await http.get(Uri.parse('http://localhost:8000/login/motdepasse'));
 
     if (response.statusCode == 200) {
-      return response.body;
+      final List<dynamic> data = json.decode(response.body);
+      return data[0].toString();
     } else {
-
       throw Exception('Failed to load random password');
     }
   }

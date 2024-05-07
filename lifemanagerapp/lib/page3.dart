@@ -23,6 +23,7 @@ class _Page3State extends State<Page3> {
     super.initState();
     fetchCategories();
     fetchArticles();
+    fetchFavoriteArticles();
   }
 
   Future<void> fetchCategories() async {
@@ -168,9 +169,10 @@ class _Page3State extends State<Page3> {
 
   Future<void> fetchFavoriteArticles() async {
     final response =
-        await http.get(Uri.parse('http://localhost:8000/courses/favori/get'));
+        await http.get(Uri.parse('http://localhost:8000/courses/favorie/get'));
 
     if (response.statusCode == 200) {
+      if (json.decode(response.body) != null) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
         favoriteItems = data
@@ -187,6 +189,9 @@ class _Page3State extends State<Page3> {
                 ))
             .toList();
       });
+      } else {
+        favoriteItems = [];
+      }
     } else {
       throw Exception('Failed to load favorite articles');
     }
@@ -213,6 +218,15 @@ class _Page3State extends State<Page3> {
               ),
               child: Column(
                 children: [
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/logo.png',
+                        height: 150,
+                      ),
+                    SizedBox(width: 20),
+                    ],
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: DropdownButton<String>(
@@ -487,7 +501,7 @@ class _Page3State extends State<Page3> {
                               onPressed: () {
                                 setState(() {
                                   removeFavoriteItem(
-                                    filteredItems[index].id,
+                                    favoriteItems[index].id,
                                   );
                                 });
                               },

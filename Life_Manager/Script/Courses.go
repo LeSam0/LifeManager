@@ -28,7 +28,7 @@ func (Liste Articles) AddToDB() {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite) VALUES (?, ?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite)
+	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite) VALUES (?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite)
 	if err != nil {
 		panic(err)
 	}

@@ -32,7 +32,7 @@ func SecureFile() {
 		index := 0
 		for _, data := range datasplit {
 			datacrypt := Chiffrement(data, pubkey)
-			WriteInFile(datacrypt, filenamecrypt[index*len(filenamecrypt)/3:(index+1)*len(filenamecrypt)/3])
+			WriteInFile(datacrypt, filenamecrypt[index*len(filenamecrypt)/6:(index+1)*len(filenamecrypt)/6])
 			index++
 		}	
 		RemouveFile(file)
@@ -56,9 +56,9 @@ func Chiffrement(Filedata []byte, PubKey *rsa.PublicKey) []byte {
 
 func SpliArrayinThree(array []byte) [][]byte {
 	var result [][]byte
-	n := len(array) / 3
+	n := len(array) / 6
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 6; i++ {
 		min := i * n
 		max := (i + 1) * n
 		result = append(result, array[min:max])
