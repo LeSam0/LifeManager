@@ -56,7 +56,7 @@ func GetCalendar() []Calendar {
 		panic(err)
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT * FROM login")
+	rows, err := db.Query("SELECT * FROM calendar")
 	if err != nil {
 		panic(err)
 	}

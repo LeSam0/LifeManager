@@ -141,4 +141,38 @@ func GetListeByCategorie() []Articles {
 	return liste_course
 }
 
-
+func DeleteAllListe() {
+	var ids []string
+	db, err := sql.Open("sqlite3", "./LifeManager.db")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+	rows, err := db.Query("SELECT id FROM courses")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id string
+		err = rows.Scan(&id)
+		if err != nil {
+			panic(err)
+		}
+		ids = append(ids, id)
+	}
+	if err = rows.Err(); err != nil {
+		panic(err)
+	}
+	for _, id := range ids {
+		db, err := sql.Open("sqlite3", "./LifeManager.db")
+		if err != nil {
+			panic(err)
+		}
+		defer db.Close()
+		_, err = db.Exec("DELETE FROM courses WHERE id = ?", id)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
