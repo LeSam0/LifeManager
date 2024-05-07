@@ -29,7 +29,6 @@ class _Page2State extends State<Page2> {
         await http.get(Uri.parse('http://localhost:8000/depense/categorie'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      print(data);
       setState(() {
         depensesCategories = data
             .map<Map<String, dynamic>>((item) => {
@@ -37,57 +36,56 @@ class _Page2State extends State<Page2> {
                   'type': item['Categorie_Name'],
                 })
             .toList();
-        print(depensesCategories);
       });
     } else {
       throw Exception('Failed to load articles');
     }
   }
 
-  // Future<void> fetchDepensesItems() async {
-  //   final response =
-  //       await http.get(Uri.parse('http://localhost:8000/depense/get/all'));
-  //   if (response.statusCode == 200) {
-  //     final List<dynamic> data = json.decode(response.body);
-  //     setState(() {
-  //       depensesItems = data
-  //           .map<DepenseItem>((item) => DepenseItem(
-  //                 name: item['name'].toString(),
-  //                 montant: item['montant'].toString(),
-  //                 date: item['date'].toString(),
-  //                 description: item['description'].toString(),
-  //                 sousCategorieId: item['sousCategorieId'].toString(),
-  //               ))
-  //           .toList();
-  //     });
-  //     print(depensesItems);
-  //   } else {
-  //     throw Exception('Failed to load articles');
-  //   }
-  // }
 
-  // Future<void> addDepenseItem(String name, String montant, String date,
-  //     String description, String sousCategorieId) async {
-  //   final response = await http.post(
-  //     Uri.parse('http://localhost:8000/depense/create'),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: jsonEncode(<String, String>{
-  //       'name': name,
-  //       'montant': montant,
-  //       'date': date,
-  //       'description': description,
-  //       'sousCategorieId': sousCategorieId,
-  //     }),
-  //   );
+  Future<void> fetchDepensesItems() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/depense/get/all'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        depensesItems = data
+            .map<DepenseItem>((item) => DepenseItem(
+                  name: item['name'].toString(),
+                  montant: item['montant'].toString(),
+                  date: item['date'].toString(),
+                  description: item['description'].toString(),
+                  sousCategorieId: item['sousCategorieId'].toString(),
+                ))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load articles');
+    }
+  }
 
-  //   if (response.statusCode == 200) {
-  //     fetchDepensesItems();
-  //   } else {
-  //     throw Exception('Failed to add article');
-  //   }
-  // }
+  Future<void> addDepenseItem(String name, String montant, String date,
+      String description, String sousCategorieId) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:8000/depense/create'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'name': name,
+        'montant': montant,
+        'date': date,
+        'description': description,
+        'sousCategorieId': sousCategorieId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      fetchDepensesItems();
+    } else {
+      throw Exception('Failed to add article');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,13 +117,12 @@ class _Page2State extends State<Page2> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Contenu de la boîte sur le côté
+                      
                       Text('Goals'),
                     ],
                   ),
                 ),
-                SizedBox(width: 90), // Espace entre les boîtes
-                // Boîte au milieu
+                SizedBox(width: 90), 
                 Container(
                   width: MediaQuery.of(context).size.width * 0.4,
                   height: MediaQuery.of(context).size.height * 0.6,
@@ -165,7 +162,7 @@ class _Page2State extends State<Page2> {
                             return DropdownMenuItem<String>(
                               value: category['id'],
                               child: Text(category[
-                                  'type']), // Utiliser 'type' au lieu de 'name'
+                                  'type']), 
                             );
                           },
                         ).toList(),
@@ -179,7 +176,28 @@ class _Page2State extends State<Page2> {
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: false),
                         ),
-                    ],
+                                                    // TextButton(
+                                                    //   onPressed: () {
+                                                    //     Navigator.pop(context);
+                                                    //   },
+                                                    //   child: Text('Annuler'),
+                                                    // ),
+                                                    // TextButton(
+                                                    //   onPressed: () {
+                                                    //     addDepenseItem(
+                                                    //       selectedQuantity,
+                                                         
+                                                            
+                                                            
+                                                          
+                                                            
+                                                    //         );
+                                                    //     Navigator.pop(context);
+                                                    //   },
+                                                    //   child: Text('Modifier'),
+                                                    // ),
+                                                  ],
+                    
                   ),
                 );
               });

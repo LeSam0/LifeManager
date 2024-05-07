@@ -5,9 +5,13 @@ import 'page2.dart';
 import 'page3.dart';
 import 'page4.dart';
 import 'page5.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'calendar_item.dart';
 
 class LifeManager extends StatelessWidget {
   const LifeManager({Key? key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +32,47 @@ class LifeManager extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+ @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage>{
+  _Event? upcomingEvent;
+  List<CalendarItem> calendarItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUpcomingEvent();
+  }
+
+  Future<void> fetchUpcomingEvent() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/calendar/get'));
+
+    if (response.statusCode == 200) {
+      if (json.decode(response.body) != null) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          calendarItems = data
+              .map<CalendarItem>((item) => CalendarItem(
+                    id: item['EventId'].toString(),
+                    eventName: item['EventName'].toString(),
+                    eventDate: DateTime.parse(item['EventDate']),
+                  ))
+              .toList();
+        });
+      } else {
+        calendarItems = [];
+      }
+    } else {
+      throw Exception('Failed to load event');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +243,11 @@ class HomePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text("peut etre le profil du user inchallah")
+                      Text("Prochain événement:"),
+                      if (upcomingEvent != null) Text(upcomingEvent!.title),
+                      if (upcomingEvent != null) Text(upcomingEvent!.date),
+                      if (upcomingEvent != null)
+                        Text(upcomingEvent!.description),
                     ],
                   ),
                 ),
@@ -212,3 +259,21 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
+class _Event {
+  final String title;
+  final String date;
+  final String description;
+
+  _Event({required this.title, required this.date, required this.description});
+
+  factory _Event.fromJson(Map<String, dynamic> json) {
+    return _Event(
+      title: json['title'],
+      date: json['date'],
+      description: json['description'],
+    );
+  }
+}
+
+  
