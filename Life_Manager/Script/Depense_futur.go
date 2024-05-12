@@ -2,6 +2,8 @@ package LifeManager
 
 import (
 	"database/sql"
+	"strconv"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -80,21 +82,37 @@ func GetFuturAllDepense() []Depenses {
 		panic(err)
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT Nom, Montant, Date, Description, id_sous_categorie FROM depenses_futur")
+	rows, err := db.Query("SELECT id, Nom, Montant, Date, Description, id_sous_categorie FROM depenses_futur")
 	if err != nil {
 		panic(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var depense Depenses
-		err = rows.Scan(&depense.Nom, &depense.Montant, &depense.Date, &depense.Description, &depense.Id_sous_categorie)
+		err = rows.Scan(&depense.Id, &depense.Nom, &depense.Montant, &depense.Date, &depense.Description, &depense.Id_sous_categorie)
 		if err != nil {
 			panic(err)
 		}
+		sous_categorie := GetSousCategorieById(depense.Id_sous_categorie)
+		categorie := GetCategorieById(sous_categorie.Categorie_id)
+		depense.Categorie_name , depense.Sous_categorie_name , depense.Id_categorie = categorie.Categorie_Name, sous_categorie.Name, categorie.Id
 		depenses = append(depenses, depense)
 	}
 	if err = rows.Err(); err != nil {
 		panic(err)
 	}
+	CheckIsFutur(depenses)
 	return depenses
+}
+
+func CheckIsFutur(alldepensefutur []Depenses) {
+	for _, depences := range alldepensefutur {
+		if !depences.Date.After(time.Now()) {
+			amodif := NewDepenses(depences.Nom,depences.Montant,depences.Date,depences.Description,depences.Id_sous_categorie)
+			amodif.AddToDB()
+			arenplacer := NewDepenses(depences.Nom,depences.Montant,depences.Date.AddDate(0, 1, 0),depences.Description,depences.Id_sous_categorie)
+			arenplacer.AddFuturToDB()
+			SuppFuturDepensesToDB(strconv.Itoa(depences.Id))
+		}
+	}
 }

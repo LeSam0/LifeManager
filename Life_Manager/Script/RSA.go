@@ -91,13 +91,3 @@ func GetRSA() RSA {
 	return rsa
 }
 
-func ModifRSAToDB(Prikey string, Pubkey string) {
-	db, err := sql.Open("sqlite3", "./LifeManager.db")
-	if err != nil {
-		panic(err)
-	}
-	_, err = db.Exec("UPDATE user SET pubkeyrsa = ?, privkeyrsa = ? where id = ?", Pubkey, Prikey, "1")
-	if err != nil {
-		panic(err)
-	}
-}

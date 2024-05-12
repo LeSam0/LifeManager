@@ -4,6 +4,10 @@ import (
 	"database/sql"
 )
 
+type Total_Value struct {
+	Total float64  `json:"Total,omitempty"`
+}
+
 type Categorie struct {
 	Id             int    `json:"Id,omitempty"`
 	Categorie_Name string `json:"Categorie_Name,omitempty"`
@@ -16,10 +20,11 @@ type Articles struct {
 	Article      string  `json:"Article,omitempty"`
 	Prix         float64 `json:"Prix,omitempty"`
 	Quantite     int     `json:"Quantite,omitempty"`
+	Is_Check     bool    `json:"IsCheck,omitempty"`
 }
 
-func NewArticle(Categorie_id int, Article string, Prix float64, Quantite int) Articles {
-	liste := Articles{Categorie_id: Categorie_id, Article: Article, Prix: Prix, Quantite: Quantite}
+func NewArticle(Categorie_id int, Article string, Prix float64, Quantite int, Is_Check bool) Articles {
+	liste := Articles{Categorie_id: Categorie_id, Article: Article, Prix: Prix, Quantite: Quantite, Is_Check: Is_Check}
 	return liste
 }
 
@@ -28,7 +33,7 @@ func (Liste Articles) AddToDB() {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite) VALUES (?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite)
+	_, err = db.Exec("INSERT INTO courses (categorie_id, article, prix, quantite, is_check) VALUES (?, ?, ?, ?, ?)", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Is_Check)
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +56,7 @@ func (Liste Articles) ModifToDB(id string) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ? where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, id)
+	_, err = db.Exec("UPDATE courses SET categorie_id = ?, article = ?, prix = ?, quantite = ?, is_check = ? where id = ?", Liste.Categorie_id, Liste.Article, Liste.Prix, Liste.Quantite, Liste.Is_Check, id)
 	if err != nil {
 		panic(err)
 	}
@@ -64,14 +69,14 @@ func GetAllCourse() []Articles {
 		panic(err)
 	}
 	defer db.Close()
-	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite FROM courses")
+	rows, err := db.Query("SELECT id, categorie_id, article, prix, quantite, is_check FROM courses")
 	if err != nil {
 		panic(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var article Articles
-		err = rows.Scan(&article.Id, &article.Categorie_id, &article.Article, &article.Prix, &article.Quantite)
+		err = rows.Scan(&article.Id, &article.Categorie_id, &article.Article, &article.Prix, &article.Quantite, &article.Is_Check)
 		if err != nil {
 			panic(err)
 		}
@@ -175,4 +180,14 @@ func DeleteAllListe() {
 			panic(err)
 		}
 	}
+}
+
+func GetTotalListe() Total_Value{
+	allcourse := GetAllCourse()
+	var total  Total_Value
+	total.Total = 0.0
+	for _,course := range allcourse {
+		total.Total += course.Prix * float64(course.Quantite)
+	} 
+	return total
 }

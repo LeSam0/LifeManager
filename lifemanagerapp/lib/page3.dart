@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:clipboard/clipboard.dart';
 import 'course_item.dart';
+import 'totalcourse_item.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -12,11 +16,13 @@ class Page3 extends StatefulWidget {
 
 class _Page3State extends State<Page3> {
   List<CourseItem> courseItems = [];
+    List<TotalCourseItem> total = [];
   List<CourseItem> favoriteItems = [];
   List<Map<String, dynamic>> categories = [];
   String? selectedCategoryId;
   String? selectedCategoryIdToAdd;
   int? selectedQuantity;
+  String? JsonPartage;
 
   @override
   void initState() {
@@ -25,12 +31,12 @@ class _Page3State extends State<Page3> {
     fetchFavoriteArticles();
     fetchArticles();
     fetchFavoriteArticles();
+    fetchTotal();
   }
 
   Future<void> fetchCategories() async {
     final response =
         await http.get(Uri.parse('http://localhost:8000/courses/categorie'));
-
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
@@ -46,6 +52,28 @@ class _Page3State extends State<Page3> {
     }
   }
 
+  Future<void> fetchTotal() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:8000/course/total'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      setState(() {
+        total =  [
+          TotalCourseItem(
+                  total: data['Total'] != null &&
+                            data['Total'].toString().isNotEmpty
+                        ? double.parse(data['Total'].toString())
+                        : 0.0,
+                )];
+             
+      });
+    } else {
+      throw Exception('Failed to load articles');
+    }
+  }
+
+
+
   Future<void> fetchArticles() async {
     final response =
         await http.get(Uri.parse('http://localhost:8000/courses/get'));
@@ -54,6 +82,7 @@ class _Page3State extends State<Page3> {
       if (json.decode(response.body) != null) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
+          JsonPartage = response.body;
           courseItems = data
               .map<CourseItem>((item) => CourseItem(
                     id: item['Id'].toString(),
@@ -65,6 +94,7 @@ class _Page3State extends State<Page3> {
                     category: item['Categorie_Name'].toString(),
                     categorie_id: item['Categorie_Id'].toString(),
                     quantite: int.parse(item['Quantite'].toString()),
+                    isChecked: item['Is_check'].toString() == "true" ? true : false,
                   ))
               .toList();
         });
@@ -87,6 +117,7 @@ class _Page3State extends State<Page3> {
 
     if (responseNormal.statusCode == 200) {
       fetchArticles();
+      fetchTotal();
     } else {
       throw Exception('Failed to delete item');
     }
@@ -99,6 +130,7 @@ class _Page3State extends State<Page3> {
 
     if (responseNormal.statusCode == 200) {
       fetchArticles();
+      fetchTotal();
     } else {
       throw Exception('Failed to delete item');
     }
@@ -118,13 +150,14 @@ class _Page3State extends State<Page3> {
     final response = await http.post(url);
     if (response.statusCode == 200) {
       fetchArticles();
+      fetchTotal();
     } else {
       throw Exception('Failed to add item');
     }
   }
 
   Future<void> _updateItem(
-      String id, String newName, double newPrice, int newQuantity, String categoryId) async {
+      String id, String newName, double newPrice, int newQuantity, String categoryId, bool isChecked) async {
     final url = Uri.parse('http://localhost:8000/courses/update').replace(
       queryParameters: {
         'categorie_id': categoryId,
@@ -132,12 +165,14 @@ class _Page3State extends State<Page3> {
         'article': newName,
         'prix': newPrice.toString(),
         'quantite': newQuantity.toString(),
+        'is_check': isChecked.toString(),
       },
     );
 
     final response = await http.put(url);
     if (response.statusCode == 200) {
       fetchArticles();
+      fetchTotal();
     } else {
       throw Exception('Failed to update item');
     }
@@ -221,6 +256,7 @@ class _Page3State extends State<Page3> {
                   category: item['Categorie_Name'].toString(),
                   categorie_id: item['Categorie_Id'].toString(),
                   quantite: int.parse(item['Quantite'].toString()),
+                  isChecked: false
                 ))
             .toList();
       });
@@ -259,298 +295,442 @@ class _Page3State extends State<Page3> {
                         height: 150,
                       ),
                     SizedBox(width: 20),
+                    Text(
+                  'Liste de course',
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                  ),
+										),
+							SizedBox(width: 700),
+new SizedBox(
+  width: 200.0,
+  height: 100.0,
+  child: ElevatedButton(
+		child: Image.asset('assets/user.png',),
+    onPressed: (
+		) {		Navigator.pushNamed(context, '/page6');
+},
+  ),
+),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: DropdownButton<String>(
-                      value: selectedCategoryId,
-                      onChanged: (String? value) {
-                        setState(() {
-                          selectedCategoryId = value;
-                        });
-                      },
-                      items:
-                          categories.map<DropdownMenuItem<String>>((category) {
-                        return DropdownMenuItem<String>(
-                          value: category['id'],
-                          child: Text(
-                            category['name'],
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                  SizedBox(height: 20),
+                   Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.15,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 220, 220, 220),
+                    borderRadius: BorderRadius.circular(20),
                   ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/home');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.home),
+                        label: const Text('Home'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page1');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.calendar_month),
+                        label: const Text('Calendrier'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page2');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.monetization_on),
+                        label: const Text('Dépenses'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page4');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.food_bank),
+                        label: const Text('Menu'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/page5');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * 0.02,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        icon: Icon(Icons.key),
+                        label: const Text('Securite'),
+                      ),
+                    ],
+                  ),
+                ),
+								SizedBox(width: 50),
+								Column(
+  children: [
+    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          width: MediaQuery.of(context).size.width * 0.18,
+          height: MediaQuery.of(context).size.height * 0.1,
+          alignment: Alignment.centerLeft,
+          child: DropdownButton<String>(
+            value: selectedCategoryId,
+            onChanged: (String? value) {
+              setState(() {
+                selectedCategoryId = value;
+              });
+            },
+            items: categories.map<DropdownMenuItem<String>>((category) {
+              return DropdownMenuItem<String>(
+                value: category['id'],
+                child: Text(
+                  category['name'],
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                setState(() {
+                  SuppList();
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                setState(() {
+									selectedCategoryId = null;
+                  fetchArticles();
+                  fetchFavoriteArticles();
+                  fetchTotal();
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () {
+                setState(() {
+                  fetchArticles();
+                  FlutterClipboard.copy(JsonPartage!).then((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Liste copier au format JSON'),
+                      ),
+                    );
+                  });
+                });
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
+    Container(
+      width: MediaQuery.of(context).size.width * 0.3,
+      height: MediaQuery.of(context).size.height * 0.485,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 216, 216, 216),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: ListView.builder(
+        itemCount: filteredItems.length,
+        itemBuilder: (context, index) {
+          return Dismissible(
+            key: UniqueKey(),
+            onDismissed: (direction) {
+              setState(() {
+                SuppItem(filteredItems[index].id);
+              });
+            },
+            
+            child: ListTile(
+              leading: Checkbox(
+                value: filteredItems[index].isChecked,
+                onChanged: (bool? value) {
+                  setState(() {
+                    filteredItems[index].isChecked = value!;
+                    _updateItem(filteredItems[index].id, filteredItems[index].name, filteredItems[index].price, filteredItems[index].quantite, filteredItems[index].categorie_id, filteredItems[index].isChecked);
+                  });
+                },
+              ),
+              title: Text(
+                filteredItems[index].category,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nom: ${filteredItems[index].name}',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Prix: ${filteredItems[index].price.toString()} €',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Quantité: ${filteredItems[index].quantite.toString()}',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: Icon(Icons.close),
                     onPressed: () {
                       setState(() {
-                        SuppList();
+                        SuppItem(filteredItems[index].id);
                       });
                     },
                   ),
                   IconButton(
-                  icon: Icon(Icons.refresh),
-                  onPressed: () {
-                    setState(() {
-                        fetchArticles();
-                    });
-                  },
+                    icon: Icon(Icons.star_border),
+                    onPressed: () {
+                      setState(() {
+                        addFavoriteItem(
+                          filteredItems[index].name,
+                          filteredItems[index].price,
+                          filteredItems[index].categorie_id,
+                          filteredItems[index].quantite,
+                          filteredItems[index].id,
+                        );
+                      });
+                    },
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.all(20),
-                        child: ListView.builder(
-                          itemCount: filteredItems.length,
-                          itemBuilder: (context, index) {
-                            return Dismissible(
-                              key: UniqueKey(),
-                              onDismissed: (direction) {
-                                setState(() {
-                                  SuppItem(filteredItems[index].id);
-                                });
-                              },
-                              child: ListTile(
-                                title: Text(
-                                  filteredItems[index].category,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Nom: ${filteredItems[index].name}',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Prix: ${filteredItems[index].price.toString()} €',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    Text(
-                                      'Quantite: ${filteredItems[index].quantite.toString()}',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                                trailing: Row(
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          String newName = filteredItems[index].name;
+                          double newPrice = filteredItems[index].price;
+                          int newQuantity = filteredItems[index].quantite;
+
+                          return StatefulBuilder(
+                            builder: (BuildContext context, StateSetter setState) {
+                              return AlertDialog(
+                                title: Text('Modifier l\'élément'),
+                                content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    IconButton(
-                                      icon: Icon(Icons.close),
-                                      onPressed: () {
-                                        setState(() {
-                                          SuppItem(filteredItems[index].id);
-                                        });
+                                    TextField(
+                                      decoration: InputDecoration(
+                                          labelText: 'Nouveau nom',
+                                          labelStyle: TextStyle(fontSize: 14)),
+                                      onChanged: (value) {
+                                        newName = value;
                                       },
+                                      controller: TextEditingController(text: newName),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.star_border),
-                                      onPressed: () {
-                                        setState(() {
-                                          addFavoriteItem(
-                                              filteredItems[index].name,
-                                              filteredItems[index].price,
-                                              filteredItems[index].categorie_id,
-                                              filteredItems[index].quantite,
-                                              filteredItems[index].id);
-                                        });
+                                    TextField(
+                                      decoration: InputDecoration(
+                                          labelText: 'Nouveau prix (€)',
+                                          labelStyle: TextStyle(fontSize: 14)),
+                                      onChanged: (value) {
+                                        newPrice = double.tryParse(value) ?? 0.0;
                                       },
+                                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                      controller: TextEditingController(text: newPrice.toString()),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.edit),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            String newName =
-                                                filteredItems[index].name;
-                                            double newPrice =
-                                                filteredItems[index].price;
-                                            int newQuantity =
-                                                filteredItems[index].quantite;
-
-                                            return StatefulBuilder(
-                                              builder: (BuildContext context,
-                                                  StateSetter setState) {
-                                                return AlertDialog(
-                                                  title: Text(
-                                                      'Modifier l\'élément'),
-                                                  content: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      TextField(
-                                                        decoration: InputDecoration(
-                                                            labelText:
-                                                                'Nouveau nom',
-                                                            labelStyle:
-                                                                TextStyle(
-                                                                    fontSize:
-                                                                        14)),
-                                                        onChanged: (value) {
-                                                          newName = value;
-                                                        },
-                                                        controller:
-                                                            TextEditingController(
-                                                                text: newName),
-                                                      ),
-                                                      TextField(
-                                                        decoration: InputDecoration(
-                                                            labelText:
-                                                                'Nouveau prix (€)',
-                                                            labelStyle:
-                                                                TextStyle(
-                                                                    fontSize:
-                                                                        14)),
-                                                        onChanged: (value) {
-                                                          newPrice =
-                                                              double.tryParse(
-                                                                      value) ??
-                                                                  0.0;
-                                                        },
-                                                        keyboardType: TextInputType
-                                                            .numberWithOptions(
-                                                                decimal: true),
-                                                        controller:
-                                                            TextEditingController(
-                                                                text: newPrice
-                                                                    .toString()),
-                                                      ),
-                                                      TextField(
-                                                        decoration: InputDecoration(
-                                                            labelText:
-                                                                'Nouvelle quantité',
-                                                            labelStyle:
-                                                                TextStyle(
-                                                                    fontSize:
-                                                                        14)),
-                                                        onChanged: (value) {
-                                                          newQuantity =
-                                                              int.tryParse(
-                                                                      value) ??
-                                                                  0;
-                                                        },
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        controller:
-                                                            TextEditingController(
-                                                                text: newQuantity
-                                                                    .toString()),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Text('Annuler'),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        _updateItem(
-                                                          filteredItems[index]
-                                                                .id,
-                                                          newName,
-                                                            newPrice,
-                                                            newQuantity,
-                                                          filteredItems[index].categorie_id
-                                                            
-                                                            );
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Text('Modifier'),
-                                                    ),
-                                                    
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                        );
+                                    TextField(
+                                      decoration: InputDecoration(
+                                          labelText: 'Nouvelle quantité',
+                                          labelStyle: TextStyle(fontSize: 14)),
+                                      onChanged: (value) {
+                                        newQuantity = int.tryParse(value) ?? 0;
                                       },
+                                      keyboardType: TextInputType.number,
+                                      controller: TextEditingController(text: newQuantity.toString()),
                                     ),
                                   ],
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Annuler'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _updateItem(
+                                        filteredItems[index].id,
+                                        newName,
+                                        newPrice,
+                                        newQuantity,
+                                        filteredItems[index].categorie_id,
+                                        filteredItems[index].isChecked,
+                                      );
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Modifier'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
+                
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width * 0.1,
-                vertical: MediaQuery.of(context).size.height * 0.1,
-              ),
-              child: Column(
-                children: [
-                  Text(
+          );
+        },
+			),
+		),
+    SizedBox(height: 15,),
+    Container(
+      width: MediaQuery.of(context).size.width * 0.3,
+      height: MediaQuery.of(context).size.height * 0.05,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 216, 216, 216),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.all(10),
+      child:
+      Text(
+                'Total '
+                 '${total.isNotEmpty ? total[0].total.toString() : "0.0"} €',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+            ),
+      ),
+	],
+  
+      ),
+      
+			SizedBox(width: 45),
+			Container(
+			child: Column(
+      children: [
+							SizedBox(height: 40),
+			Text(
                     'Favoris',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
+                  ), 
+							SizedBox(height: 20),
+
+			Container(
+      width: MediaQuery.of(context).size.width * 0.28,
+      height: MediaQuery.of(context).size.height * 0.55,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 216, 216, 216),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.all(20),
+			child : ListView.builder(
+        itemCount: favoriteItems.length,
+        itemBuilder: (context, index) {
+          return Dismissible(
+            key: UniqueKey(),
+            onDismissed: (direction) {
+              setState(() {
+                SuppItem(favoriteItems[index].id);
+              });
+            },
+            
+            child: ListTile(
+              title: Text(
+                favoriteItems[index].category,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nom: ${favoriteItems[index].name}',
+                    style: TextStyle(fontSize: 14),
                   ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: ListView.builder(
-                        itemCount: favoriteItems.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(
-                              favoriteItems[index].category,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Nom: ${favoriteItems[index].name}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  'Prix: ${favoriteItems[index].price.toString()} €',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  'Quantite: ${favoriteItems[index].quantite}',
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
+                  Text(
+                    'Prix: ${favoriteItems[index].price.toString()} €',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Quantité: ${favoriteItems[index].quantite.toString()}',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                             IconButton(
                                   icon: Icon(Icons.edit),
                                   onPressed: () {
                                     showDialog(
@@ -673,26 +853,30 @@ class _Page3State extends State<Page3> {
                                           favoriteItems[index].categorie_id,
                                           favoriteItems[index].quantite,);
                                     });
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-
-                      
-                    ),
-                  )
+																	}
+																)
                 ],
               ),
             ),
-          ),
-        ],
-      ),
+          );
+        },
+			),
+			)
+			]
+			)
+		),
+],
+    ),
+  ],
+),
 
-      
-      floatingActionButton: FloatingActionButton(
+			
+						),
+					),
+					
+        ],
+			),
+			floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
             context: context,
@@ -829,7 +1013,7 @@ class _Page3State extends State<Page3> {
           );
         },
         child: Icon(Icons.add),
-      ),
-    );
+			)
+      );
   }
 }

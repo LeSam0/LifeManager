@@ -54,13 +54,13 @@ func Create() {
 	}
 	log.Println("Table categorie_course created successfully")
 	// Create table courses
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, is_check BOOLEAN, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
 	if err != nil {
 		panic(err)
 	}
 	log.Println("Table course created successfully")
 	// Create table courses_favori
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses_favori (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS courses_favori (id INTEGER PRIMARY KEY AUTOINCREMENT, categorie_id INTEGER, article TEXT, prix FLOAT, quantite INTEGER, is_check BOOLEAN, FOREIGN KEY (categorie_id) REFERENCES categorie_course(id))")
 	if err != nil {
 		panic(err)
 	}
@@ -83,6 +83,12 @@ func Create() {
 		panic(err)
 	}
 	log.Println("Table calendar created successfully")
+	// Create table menu
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS menu (id INTEGER PRIMARY KEY AUTOINCREMENT, menu_name TEXT, link TEXT, date DATETIME)")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Table menu created successfully")
 }
 
 func CreateCategorieCourse() {

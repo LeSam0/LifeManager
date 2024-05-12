@@ -11,15 +11,21 @@ import (
 
 func API() {
 
+	// RSA
+
+	http.HandleFunc("/rsa", RSA)
+
+	// Login / Register 
+
+	http.HandleFunc("/login", Login)
+	http.HandleFunc("/register", Register)
+
 	// Depense future
 
-	http.HandleFunc("/depense/futur/create", CreateDepense)
-	http.HandleFunc("/depense/futur/get/all", GetAllDepense)
-	http.HandleFunc("/depense/futur/get/jour", GetDepensebyDay)
-	http.HandleFunc("/depense/futur/get/mois", GetDepensebyMonth)
-	http.HandleFunc("/depense/futur/get/annee", GetDepensebyYear)
-	http.HandleFunc("/depense/futur/update", UpdateDepense)
-	http.HandleFunc("/depense/futur/delete", DeleteDepense)
+	http.HandleFunc("/depense/futur/create", CreateFuturDepense)
+	http.HandleFunc("/depense/futur/get/all", GetFuturAllDepense)
+	http.HandleFunc("/depense/futur/update", UpdateFuturDepense)
+	http.HandleFunc("/depense/futur/delete", DeleteFuturDepense)
 
 	// Depense
 
@@ -36,12 +42,28 @@ func API() {
 	http.HandleFunc("/depense/categorie", GetAllCategorieDepense)
 	http.HandleFunc("/depense/souscategorie", GetAllSousCategorieDepense)
 
+	// Total depense
+
+	http.HandleFunc("/depense/total", GetTotal)
+
+	// Total course 
+
+	http.HandleFunc("/course/total", GetTotalCourse)
+
 	// Login
 
 	http.HandleFunc("/login/create", CreateLogin)
 	http.HandleFunc("/login/get", GetAllLogin)
 	http.HandleFunc("/login/update", UpdateLogin)
 	http.HandleFunc("/login/delete", DeleteLogin)
+
+	// Menu
+
+	http.HandleFunc("/menu/create", CreateMenu)
+	http.HandleFunc("/menu/get", GetAllMenu)
+	http.HandleFunc("/menu/get/jour", GetMenubyDay)
+	http.HandleFunc("/menu/update", UpdateMenu)
+	http.HandleFunc("/menu/delete", DeleteMenu)
 
 	// Mdp
 
@@ -57,6 +79,7 @@ func API() {
 	http.HandleFunc("/courses/get", GetAllCourse)
 	http.HandleFunc("/courses/update", UpdateCourse)
 	http.HandleFunc("/courses/delete", DeleteCourse)
+	http.HandleFunc("/courses/vide", VideAllCourse)
 
 	// Course Favorie
 
@@ -64,12 +87,12 @@ func API() {
 	http.HandleFunc("/courses/favorie/get", GetAllCourseFavorie)
 	http.HandleFunc("/courses/favorie/update", UpdateCourseFavorie)
 	http.HandleFunc("/courses/favorie/delete", DeleteCourseFavorie)
-	
 
 	// Calendar
 
 	http.HandleFunc("/calendar/create", CreateEvent)
 	http.HandleFunc("/calendar/get", GetAllEvent)
+	http.HandleFunc("/calendar/get/jour", GetAllEventbyday)
 	http.HandleFunc("/calendar/update", UpdateEvent)
 	http.HandleFunc("/calendar/delete", DeleteEvent)
 
@@ -96,29 +119,6 @@ func UpdateFuturDepense(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetFuturDepensebyMonth(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		Mois := r.URL.Query().Get("mois")
-		AllDepense := LifeManager.GetFuturDepenseMois(Mois)
-		json.NewEncoder(w).Encode(AllDepense)
-	}
-}
-
-func GetFuturDepensebyYear(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		Annee := r.URL.Query().Get("annee")
-		AllDepense := LifeManager.GetFuturDepenseJour(Annee)
-		json.NewEncoder(w).Encode(AllDepense)
-	}
-}
-
-func GetFuturDepensebyDay(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		Jour := r.URL.Query().Get("jour")
-		AllDepense := LifeManager.GetFuturDepenseJour(Jour)
-		json.NewEncoder(w).Encode(AllDepense)
-	}
-}
 
 func GetFuturAllDepense(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -132,9 +132,9 @@ func CreateFuturDepense(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		Nom := r.URL.Query().Get("nomdepense")
 		Montant, _ := strconv.ParseFloat(r.URL.Query().Get("montant"), 64)
-		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get(""))
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get("date"))
 		Description := r.URL.Query().Get("description")
-		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("description"))
+		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("idsouscategorie"))
 		newDepenses := LifeManager.NewDepenses(Nom, Montant, Date, Description, Id_Sous_Categorie)
 		newDepenses.AddFuturToDB()
 	}
@@ -171,7 +171,7 @@ func GetDepensebyMonth(w http.ResponseWriter, r *http.Request) {
 func GetDepensebyYear(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		Annee := r.URL.Query().Get("annee")
-		AllDepense := LifeManager.GetDepenseJour(Annee)
+		AllDepense := LifeManager.GetDepenseAnnee(Annee)
 		json.NewEncoder(w).Encode(AllDepense)
 	}
 }
@@ -196,9 +196,9 @@ func CreateDepense(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		Nom := r.URL.Query().Get("nomdepense")
 		Montant, _ := strconv.ParseFloat(r.URL.Query().Get("montant"), 64)
-		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get(""))
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get("date"))
 		Description := r.URL.Query().Get("description")
-		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("description"))
+		Id_Sous_Categorie, _ := strconv.Atoi(r.URL.Query().Get("idsouscategorie"))
 		newLogin := LifeManager.NewDepenses(Nom, Montant, Date, Description, Id_Sous_Categorie)
 		newLogin.AddToDB()
 	}
@@ -252,7 +252,7 @@ func DeleteLogin(w http.ResponseWriter, r *http.Request) {
 func GetAllLogin(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
-		liste_Login := LifeManager.GetLogin()
+		liste_Login := LifeManager.GetLoginWithID()
 		json.NewEncoder(w).Encode(liste_Login)
 	}
 }
@@ -274,7 +274,7 @@ func CreateCourse(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, false)
 		newArticle.AddToDB()
 	}
 }
@@ -290,7 +290,11 @@ func UpdateCourse(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		is_check := false
+		if r.URL.Query().Get("is_check") == "true"{
+			is_check = true
+		}
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, is_check)
 		newArticle.ModifToDB(id)
 	}
 }
@@ -332,7 +336,7 @@ func CreateCourseFavorie(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, false)
 		newArticle.AddFavToDB()
 	}
 }
@@ -345,7 +349,7 @@ func UpdateCourseFavorie(w http.ResponseWriter, r *http.Request) {
 		article := r.URL.Query().Get("article")
 		prix, _ := strconv.ParseFloat(r.URL.Query().Get("prix"), 64)
 		quantite, _ := strconv.Atoi(r.URL.Query().Get("quantite"))
-		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite)
+		newArticle := LifeManager.NewArticle(categorie_id, article, prix, quantite, false)
 		newArticle.ModifFavToDB(id)
 	}
 }
@@ -397,5 +401,102 @@ func GetAllEvent(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		liste_event := LifeManager.GetCalendar()
 		json.NewEncoder(w).Encode(liste_event)
+	}
+}
+
+func GetAllEventbyday(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		day := r.URL.Query().Get("jour")
+		liste_event := LifeManager.GetCalendarbyDay(day)
+		json.NewEncoder(w).Encode(liste_event)
+	}
+}
+
+func VideAllCourse(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		LifeManager.DeleteAllListe()
+	}
+}
+
+func GetTotal(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		total := LifeManager.GetTotal()
+		json.NewEncoder(w).Encode(total)
+	}
+}
+
+func CreateMenu(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+		Menu_Name := r.URL.Query().Get("menu_Name")
+		Link := r.URL.Query().Get("link")
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get("date"))
+		newMenu := LifeManager.NewMenu(Menu_Name, Link, Date)
+		newMenu.AddMenuToDB()
+	}
+}
+
+func UpdateMenu(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "PUT" {
+		id := r.URL.Query().Get("id")
+		Menu_Name := r.URL.Query().Get("menu_Name")
+		Link := r.URL.Query().Get("link")
+		Date, _ := time.Parse("2006-01-02 15:04:05", r.URL.Query().Get("date"))
+		newMenu := LifeManager.NewMenu(Menu_Name, Link, Date)
+		newMenu.ModifMenuToDB(id)
+	}
+}
+
+func DeleteMenu(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "DELETE" {
+		id := r.URL.Query().Get("id")
+		LifeManager.SuppMenuToDB(id)
+	}
+}
+
+func GetAllMenu(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "GET" {
+		liste_Menu := LifeManager.GetMenu()
+		json.NewEncoder(w).Encode(liste_Menu)
+	}
+}
+
+func GetMenubyDay(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		Jour := r.URL.Query().Get("jour")
+		menuday := LifeManager.GetDepenseJour(Jour)
+		json.NewEncoder(w).Encode(menuday)
+	}
+}
+
+func GetTotalCourse(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		total := LifeManager.GetTotalListe()
+		json.NewEncoder(w).Encode(total)
+	}
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		identifiant := r.URL.Query().Get("identifiant")
+		password := r.URL.Query().Get("password")
+		login := LifeManager.Login_(identifiant, password)
+		json.NewEncoder(w).Encode(login)
+	}
+}
+
+func Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		identifiant := r.URL.Query().Get("identifiant")
+		password := r.URL.Query().Get("password")
+		LifeManager.Register(identifiant, password)
+	}
+}
+
+func RSA(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		LifeManager.ChangeNewKey()
 	}
 }

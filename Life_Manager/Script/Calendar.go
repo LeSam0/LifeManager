@@ -74,3 +74,14 @@ func GetCalendar() []Calendar {
 	}
 	return cal
 }
+
+func GetCalendarbyDay(day string) []Calendar {
+	calendars := GetCalendar()
+	var cal []Calendar
+	for _, calendar := range calendars {
+		if calendar.EventDate.Format("2006-02-01") == day {
+			cal = append(cal, calendar)
+		}
+	}
+	return cal
+}
