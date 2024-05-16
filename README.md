@@ -23,7 +23,7 @@ func main() {
 }
 ```
 
-Lancer l'API grâce à [Lancement de l'Api](#lancement-de-l'api)
+Lancer l'API grâce à [Lancement de l'Api](#lancement-de-lapi)
 
 Puis remodifier le ficher ``` Life_Manager\Main.go``` pour pas qu'il n'y ai pas d'erreur (pour le moment je n'est pas fait la verifie pour pas que les categories soit ajouter plusieurs fois)
 
@@ -44,7 +44,7 @@ func main() {
 }
 ```
 
-Lancer l'application grâce à [Lancement de l'application](#lancement-de-l'application)
+Lancer l'application grâce à [Lancement de l'application](#lancement-de-lapplication)
 
 Ce register pour la première fois puis ce login. (garder le compte pour le login a chaque fois car pas de gestion de multi-compte pour le moment).
 
