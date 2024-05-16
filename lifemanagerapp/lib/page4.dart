@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:time_planner/time_planner.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:date_field/date_field.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -315,25 +315,18 @@ new SizedBox(
                      child : Column (
                     children :[  
                     SizedBox(height: 70,),
-                    TimePlanner(
-                      startHour: 9,
-                      endHour: 19,
-                      headers: [
-                        TimePlannerTitle(
-                          date: "3/10/2021",
-                          title: "sunday",
-                        ),
-                        TimePlannerTitle(
-                          date: "3/11/2021",
-                          title: "monday",
-                        ),
-                        TimePlannerTitle(
-                          date: "3/12/2021",
-                          title: "tuesday",
-                        ),
-                      ],
-                      // tasks: tasks,
+                    SfCalendar(
+                    view: CalendarView.week,
+                    firstDayOfWeek: 1,
+                    showNavigationArrow: true,
+                    showCurrentTimeIndicator: false,
+                    timeSlotViewSettings: TimeSlotViewSettings(
+                      timeIntervalHeight: 100,
+                      dateFormat: 'd', 
+                      dayFormat: 'EEE',
+                      timeInterval: Duration(hours: 12),
                     ),
+                    )
                     ]))]
                   )
                 )
